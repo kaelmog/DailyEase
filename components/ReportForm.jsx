@@ -8,7 +8,6 @@ import { ChevronUpIcon } from "@heroicons/react/24/solid";
 import { formatIdNumber, pretty } from "@/utils/format";
 import { cleanNumericString } from "@/utils/numbers";
 import { getIndonesianFullDate } from "@/utils/dates";
-
 const COLORS = {
   bg: "#FAF8F1",
   accent: "#34656D",
@@ -41,17 +40,28 @@ const initialSummary = {
   pb1: 0,
 };
 
-export default function ReportForm() {
+export default function ReportForm({ existingReport, mode = "create" }) {
   const { products, categories, loading } = useSupabaseData();
-  const [alert, setAlert] = useState(null);
-  const [form, setForm] = useState({
-    date: getIndonesianFullDate(),
-    outlet_name: "The Wheat RS PURI CINERE",
-    payments: { ...initialPayments },
-    summary_sales: { ...initialSummary },
-    leftovers: [],
-    notes: "",
-  });
+  const [alertState, setAlertState] = useState(null);
+  const [form, setForm] = useState(
+    existingReport
+      ? {
+          ...existingReport,
+          date: getIndonesianFullDate(),
+          outlet_name: "The Wheat RS PURI CINERE",
+          payments: existingReport.payments || { ...initialPayments },
+          summary_sales: existingReport.summary_sales || { ...initialSummary },
+          leftovers: existingReport.leftovers || [],
+        }
+      : {
+          date: getIndonesianFullDate(),
+          outlet_name: "The Wheat RS PURI CINERE",
+          payments: { ...initialPayments },
+          summary_sales: { ...initialSummary },
+          leftovers: [],
+          notes: "",
+        }
+  );
 
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [reviewType, setReviewType] = useState(null);
@@ -65,7 +75,14 @@ export default function ReportForm() {
     if (!loading && products?.length) {
       const leftovers = products.map((p) => ({
         product_id: p.id,
+        name: p.name,
         quantity_left: 0,
+        product_category: p.product_categories
+          ? {
+              id: p.product_categories.id,
+              name: p.product_categories.name,
+            }
+          : { id: null, name: "Uncategorized" },
       }));
 
       queueMicrotask(() => {
@@ -87,23 +104,21 @@ export default function ReportForm() {
     return grouped;
   }, [form.leftovers, products]);
 
-  const totalSales = useMemo(
-    () =>
-      Object.values(form.payments).reduce(
-        (acc, p) => acc + (Number(p.amount) || 0),
-        0
-      ),
-    [form.payments]
-  );
+  const totalSales = useMemo(() => {
+    const payments = form?.payments || {};
+    return Object.values(payments).reduce(
+      (acc, p) => acc + (Number(p.amount) || 0),
+      0
+    );
+  }, [form.payments]);
 
-  const totalTransactions = useMemo(
-    () =>
-      Object.values(form.payments).reduce(
-        (acc, p) => acc + (Number(p.transactions) || 0),
-        0
-      ),
-    [form.payments]
-  );
+  const totalTransactions = useMemo(() => {
+    const payments = form?.payments || {};
+    return Object.values(payments).reduce(
+      (acc, p) => acc + (Number(p.transactions) || 0),
+      0
+    );
+  }, [form.payments]);
 
   const handlePaymentAmountChange = useCallback((key, value) => {
     const num = cleanNumericString(value);
@@ -144,6 +159,45 @@ export default function ReportForm() {
     });
   }
 
+  const handleSubmit = async () => {
+    const token = localStorage.getItem("token");
+    const endpoint =
+      mode === "edit" ? "/api/reports/update" : "/api/reports/create";
+
+    const payload = mode === "edit" ? { id: form.id, updates: form } : form;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setAlertState({
+          type: "success",
+          message: mode === "edit" ? "Report updated!" : "Report created!",
+        });
+      } else {
+        setAlertState({
+          type: "error",
+          message: data.error || "Failed to save report",
+        });
+      }
+    } catch (e) {
+      console.error("Submit error:", e);
+      setAlertState({
+        type: "error",
+        message: e.message || "Unexpected error occurred.",
+      });
+    }
+  };
+
   return (
     <div
       className="min-h-screen px-4 py-6 max-w-md mx-auto"
@@ -161,16 +215,16 @@ export default function ReportForm() {
         </p>
       </header>
 
-      {alert && (
+      {alertState && (
         <div
           className="mb-4 p-3 rounded font-medium"
           style={{
             backgroundColor:
-              alert.type === "success" ? COLORS.accent : "#e53e3e",
+              alertState.type === "success" ? COLORS.accent : "#e53e3e",
             color: COLORS.bg,
           }}
         >
-          {alert.message}
+          {alertState.message}
         </div>
       )}
 
@@ -189,7 +243,9 @@ export default function ReportForm() {
                   <span className="text-sm mr-1">Rp</span>
                   <input
                     inputMode="numeric"
-                    value={Number(form.payments[key].amount)}
+                    value={formatIdNumber(
+                      form.payments[key].amount ? form.payments[key].amount : ""
+                    )}
                     onFocus={(e) => {
                       if (e.target.value === "0") e.target.value = "";
                     }}
@@ -413,6 +469,13 @@ export default function ReportForm() {
             className="px-4 py-2 bg-[#34656D] hover:bg-[#91C4C3] text-white rounded-md"
           >
             Preview Leftovers
+          </button>
+
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+          >
+            Submit Report
           </button>
 
           <ReviewModal

@@ -74,6 +74,16 @@ export default function ReviewModal({
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
+  async function handleSave() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const res = await fetch("/api/reports/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ form: item, userId: user.id }),
+    });
+    if (res.ok) alert("Report saved successfully!");
+  }
+
   return (
     <Modal
       title={
@@ -101,6 +111,13 @@ export default function ReviewModal({
           className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg"
         >
           <MessageSquare size={16} /> Bagikan ke WhatsApp
+        </Button>
+
+        <Button
+          onClick={handleSave}
+          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg"
+        >
+          <MessageSquare size={16} /> Simpan
         </Button>
       </div>
     </Modal>

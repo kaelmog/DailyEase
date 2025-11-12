@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
+export const experimental = {
+  proxyTimeout: 2000,
+};
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    proxyTimeout: 2000,
+  },
 };
 
 export default nextConfig;

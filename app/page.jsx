@@ -14,7 +14,7 @@ export default function HomePage() {
       setShowGreeting(true);
     }, 300);
 
-    const redirectTimer = setTimeout(() => router.push("/reports"), 2000);
+    const redirectTimer = setTimeout(() => router.push("/reports/new"), 2000);
 
     return () => {
       clearTimeout(loadTimer);
