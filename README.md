@@ -147,9 +147,11 @@ npm install
 
 Create a .env.local file:
 
-```NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 JWT_SECRET=your_secret_key
+ADMIN_API_SECRET=your_secret_key
 ```
 
 ### 4. Run Locally
