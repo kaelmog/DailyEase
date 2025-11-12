@@ -189,7 +189,7 @@ export default function ReportForm() {
                   <span className="text-sm mr-1">Rp</span>
                   <input
                     inputMode="numeric"
-                    value={Number(form.payments[key].amount)}
+                    value={formatIdNumber(form.payments[key].amount)}
                     onFocus={(e) => {
                       if (e.target.value === "0") e.target.value = "";
                     }}
