@@ -93,7 +93,7 @@ These are **experimental / unreleased** features currently under development:
 ---
 
 ## 🗂️ Project Structure
-
+```
 daily-ease/
 ├── app/
 │ ├── api/
@@ -117,7 +117,7 @@ daily-ease/
 │ └── utils.js
 │
 └── README.md
-
+```
 ---
 
 ## 🧠 Development Notes
