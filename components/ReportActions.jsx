@@ -1,31 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Loader from "./ui/loader";
 
 export default function ReportActions({ reportId, onDeleted }) {
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const router = useRouter();
 
   const handleEdit = () => {
     router.push(`/reports/edit/${reportId}`);
   };
-
-  return (
-    <div className="flex gap-2">
-      <button
-        onClick={handleEdit}
-        className="text-blue-500 hover:text-blue-700 text-sm"
-      >
-        Edit
-      </button>
-      <button
-        onClick={() => handleDelete(reportId)}
-        className="text-red-500 hover:text-red-700 text-sm"
-      >
-        Delete
-      </button>
-    </div>
-  );
 
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this report?")) return;
@@ -62,7 +46,7 @@ export default function ReportActions({ reportId, onDeleted }) {
         disabled={loading}
         className="px-2 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-500 disabled:opacity-60"
       >
-        {loading ? "Deleting..." : "Delete"}
+        {loading ? (<Loader label="Deleting..." />) : "Delete"}
       </button>
     </div>
   );

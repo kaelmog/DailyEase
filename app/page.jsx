@@ -35,7 +35,7 @@ export default function HomePage() {
         </h1>
       )}
 
-      <style jsx>{`
+      <style>{`
         /* Shimmer loading */
         .shimmer {
           position: relative;

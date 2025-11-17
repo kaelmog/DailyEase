@@ -1,5 +1,7 @@
-import { verifyToken } from "@/lib/auth";
+import { verifyJwt } from "@/lib/auth";
 import { supabase } from "@/lib/supabaseClient";
+import { NextResponse } from "next/server";
+
 
 export async function GET(req, context) {
   const { id } = await context.params;
@@ -9,10 +11,10 @@ export async function GET(req, context) {
   if (!token)
     return NextResponse.json({ error: "Missing token" }, { status: 401 });
 
-  const decoded = verifyToken(token, process.env.ADMIN_API_SECRET);
+  const decoded = verifyJwt(token, process.env.ADMIN_API_SECRET);
   if (!decoded)
     return NextResponse.json({ error: "Invalid token" }, { status: 403 });
-  const user = await verifyToken(token, process.env.ADMIN_API_SECRET);
+  const user = await verifyJwt(token, process.env.ADMIN_API_SECRET);
   if (!user) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

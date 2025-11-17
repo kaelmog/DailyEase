@@ -115,3 +115,24 @@ export const generateLeftoversReportMessage = (
 
   return msg;
 };
+
+export const sumBy = (items = [], key) => {
+  return items.reduce((acc, next) => acc + (Number(next?.[key]) || 0), 0);
+};
+
+export const groupBy = (items = [], key) => {
+  return items.reduce((acc, item) => {
+    const k = item?.[key] ?? '__unknown';
+    acc[k] = acc[k] || [];
+    acc[k].push(item);
+    return acc;
+  }, {});
+};
+
+export const safeParseJSON = (str, fallback = null) => {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
+  }
+};

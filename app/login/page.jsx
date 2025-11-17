@@ -34,28 +34,30 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#FAF8F1]">
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-2xl shadow-md w-80 space-y-4"
+        className="bg-secondary p-6 rounded-2xl shadow-md w-80 space-y-4 text-text-primary"
       >
-        <h1 className="text-xl font-bold text-center">DailyEase Login</h1>
-        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+        <h1 className="text-xl font-bold text-center">DailyEase</h1>
+        {error && (
+          <p className="text-status-error text-sm text-center">{error}</p>
+        )}
         <input
           type="text"
           placeholder="Username"
           value={form.username}
           onChange={(e) => setForm({ ...form, username: e.target.value })}
-          className="border w-full px-3 py-2 rounded"
+          className="border border-accent-primary/60 w-full px-3 py-2 rounded"
         />
         <input
           type="password"
           placeholder="Password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
-          className="border w-full px-3 py-2 rounded"
+          className="border border-accent-primary/60 w-full px-3 py-2 rounded"
         />
-        <button className="w-full py-2 bg-[#34656D] text-white rounded font-semibold hover:opacity-90">
+        <button className="w-full py-2 bg-accent-primary text-white rounded font-semibold hover:bg-btn-primary-hover">
           Login
         </button>
       </form>

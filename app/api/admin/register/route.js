@@ -9,9 +9,9 @@ export async function POST(req) {
   if (apiSecret !== process.env.ADMIN_API_SECRET)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: user, error: userErr } = await supabaseAdmin
+  const { data: user, error: userErr } = await supabaseAdmin()
     .from("users")
-    .insert([{ username, name, email, role: "admin", is_active: true }])
+    .insert([{ username, name, email, role: "user", is_active: true }])
     .select()
     .single();
 
@@ -21,7 +21,7 @@ export async function POST(req) {
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
 
-  await supabaseAdmin.from("auth_credentials").insert({
+  await supabaseAdmin().from("auth_credentials").insert({
     user_id: user.id,
     password_hash: hash,
     salt,

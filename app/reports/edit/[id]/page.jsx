@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import ReportForm from "@/components/ReportForm";
 
 export default function EditReportPage() {
   const { id } = useParams();
   const [report, setReport] = useState(null);
-  const router = useRouter();
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 

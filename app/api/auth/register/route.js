@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { hashPassword, signToken } from "@/lib/auth";
+import { hashPassword, signJwt } from "@/lib/auth";
 
 export async function POST(req) {
   try {
@@ -8,7 +8,7 @@ export async function POST(req) {
     if (!username || !password)
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
 
-    const { data: existing } = await supabaseAdmin
+    const { data: existing } = await supabaseAdmin()
       .from("users")
       .select("*")
       .eq("username", username)
@@ -18,7 +18,7 @@ export async function POST(req) {
 
     const hashed = await hashPassword(password);
 
-    const { data: newUser, error } = await supabaseAdmin
+    const { data: newUser, error } = await supabaseAdmin()
       .from("users")
       .insert([{ username, email, password_hash: hashed, role: "Admin" }])
       .select()
@@ -26,7 +26,7 @@ export async function POST(req) {
 
     if (error) throw error;
 
-    const token = signToken(newUser);
+    const token = signJwt(newUser);
     return NextResponse.json({ token, user: newUser }, { status: 201 });
   } catch (err) {
     console.error("Register error:", err);

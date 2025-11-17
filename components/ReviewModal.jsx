@@ -98,10 +98,10 @@ export default function ReviewModal({
         {reportText}
       </pre>
 
-      <div className="mt-5 flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+      <div className="mt-5 grid grid-cols-3 gap-4">
         <Button
           onClick={handleCopy}
-          className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg"
+          className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg h-10"
         >
           <Copy size={16} /> Salin Pesan
         </Button>

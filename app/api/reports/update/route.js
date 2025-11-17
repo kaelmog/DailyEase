@@ -45,7 +45,7 @@ export async function POST(req) {
       report_date: updates.report_date || new Date().toISOString().slice(0, 10),
     };
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabaseAdmin()
       .from("reports")
       .update(updateData)
       .eq("id", id)

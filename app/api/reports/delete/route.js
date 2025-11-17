@@ -13,7 +13,7 @@ export async function POST(req) {
     if (!decoded)
       return NextResponse.json({ error: "Invalid token" }, { status: 403 });
 
-    const { error } = await supabaseAdmin.from("reports").delete().eq("id", id);
+    const { error } = await supabaseAdmin().from("reports").delete().eq("id", id);
     if (error) throw error;
 
     return NextResponse.json({ success: true });

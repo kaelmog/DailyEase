@@ -1,23 +1,41 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf3d1;
+  --background: #ffffff;
   --foreground: #fbf3d1;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-primary: #c3f584; /* MAIN BACKGROUND: VIBRANT Stabilo Green/Lime */
+  --color-secondary: #e7f7dd; /* Secondary Card/Modal BG (Now slightly darker) */
+  --color-input: #ffffff; /* Input Field BG (Pure White) */
+  --color-row-hover: #aec97a; /* Hover state for table rows (Darker BG) */
+
+  /* Text */
+  --color-text-primary: #1a2421; /* Deep Forest (Main Text - Great contrast) */
+  --color-text-secondary: #45524b; /* Light Slate (Muted Labels, Placeholder) */
+  --color-text-hover: #000000; /* Pure Black on light hover */
+
+  /* Accents & Actions (SHARPENED CONTRASTING ACCENTS) */
+  --color-accent-primary: #5ba8ae; /* Pale Teal (Primary Action - Sharper) */
+  --color-accent-secondary: #ffd7b2; /* Soft Peach/Coral (Secondary Action) */
+
+  /* --- ALERT & STATUS COLORS (NEW) --- */
+  --color-status-success: #e8d5b5; /* Pale Gold/Tan (Success messages, totals) */
+  --color-status-warning: #ffc26b; /* Soft Amber (Caution/Warning) */
+  --color-status-error: #e57373; /* Soft Red (Error/Danger) */
+
+  /* Button Hover States (Light Mode: Darkened for contrast) */
+  --color-btn-primary-hover: #478e94; /* Darkened Pale Teal */
+  --color-btn-secondary-hover: #e3b693; /* Darkened Soft Peach */
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
+} */
 
 @keyframes fade-in {
   from {

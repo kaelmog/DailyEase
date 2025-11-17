@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import ReportActions from "@/components/ReportActions";
-import { formatIdNumber } from "@/utils/format";
+import { Briefcase, CreditCard, Loader2 } from "lucide-react";
+import Button from "@/components/ui/button";
 import Link from "next/link";
 
 export default function ReportsPage() {
@@ -30,47 +30,93 @@ export default function ReportsPage() {
   }, [token]);
 
   const weeklySummary = useMemo(() => {
-    const grouped = {};
-    reports.forEach((r) => {
-      const week = new Date(r.report_date).toLocaleDateString("id-ID", {
-        week: "numeric",
+    return reports.map((r) => ({
+      ...r,
+      formatted_date: new Date(r.report_date).toLocaleDateString("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
         year: "numeric",
-      });
-      if (!grouped[week]) grouped[week] = [];
-      grouped[week].push(r);
-    });
-    return grouped;
+      }),
+    }));
   }, [reports]);
 
   return (
-    <div className="min-h-screen px-4 py-6 max-w-3xl mx-auto">
-      <header className="mb-4">
-        <h1 className="text-2xl font-bold">Report History</h1>
+    <div className="min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
+      <header className="flex mb-4 justify-between items-center">
+        <h1 className="text-3xl font-bold text-text-primary text-center">
+          Riwayat Laporan
+        </h1>
+        <Link href="/reports/new">
+        <Button
+                  className="flex items-center justify-center gap-2 bg-accent-primary hover:bg-btn-primary-hover text-white font-medium rounded-lg"
+                >
+          Buat Baru
+                </Button>
+          </Link>
       </header>
 
       {loading ? (
-        <p>Loading...</p>
+        
+                <Loader2 className="w-8 h-8 animate-spin text-accent-primary mb-3" />
       ) : err ? (
         <p className="text-red-500">{err}</p>
       ) : reports.length === 0 ? (
         <p>No reports yet.</p>
       ) : (
-        Object.entries(weeklySummary).map(([week, items]) => (
-          <div key={week} className="mb-6">
-            <h2 className="font-semibold text-lg mb-2">Week {week}</h2>
-            {items.map((r) => (
-              <Link
-                key={r}
-                href={`/reports/view/${r.id}`}
-                className="block flex-1"
-              >
-                <div className="text-sm text-gray-400">{r.report_date}</div>
-                <div className="text-lg font-medium">
-                  Rp {r.total_sales ?? 0}
+        weeklySummary.map((r) => (
+          <div
+            key={r.id}
+            className="m-2 py-4 px-4 rounded-lg bg-secondary text-text-primary"
+          >
+            <Link href={`/reports/view/${r.id}`} className="block flex-1">
+              <h1 className="text-3xl font-extrabold mb-1 text-text-primary text-center">
+                Laporan Closing
+              </h1>
+
+              <div className="flex items-center text-text-secondary mb-6 space-x-2 w-full justify-center">
+                <span>{r.formatted_date}</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div className="p-4 bg-primary rounded-xl shadow-md border border-row-hover/50">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <CreditCard className="w-5 h-5 text-text-primary" />
+                    <span className="text-text-secondary text-sm font-medium uppercase tracking-wider">
+                      Penjualan
+                    </span>
+                  </div>
+                  <div className="text-3xl font-extrabold text-text-primary">
+                    Rp {r.total_sales ?? 0}
+                  </div>
                 </div>
-                {r.notes && <div className="text-sm mt-1">Note example</div>}
-              </Link>
-            ))}
+
+                <div className="p-4 bg-primary rounded-xl shadow-md border border-row-hover/50">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Briefcase className="w-5 h-5 text-text-primary" />
+                    <span className="text-text-secondary text-sm font-medium uppercase tracking-wider">
+                      Transaksi
+                    </span>
+                  </div>
+                  <div className="text-3xl font-extrabold text-text-primary">
+                    {r.transactions ?? 0}
+                  </div>
+                </div>
+              </div>
+
+              {r.notes && (
+                <div className="pt-6 border-t border-row-hover">
+                  <p className="text-text-secondary text-sm font-semibold mb-2">
+                    Catatan:
+                  </p>
+                  <div className="p-4 bg-input rounded-lg border border-row-hover">
+                    <p className="text-text-primary text-sm italic">
+                      {r.notes}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </Link>
           </div>
         ))
       )}

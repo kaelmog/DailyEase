@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { fetcher } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import { formatIdNumber } from "@/utils/format";
 
 export default function ReportHistoryPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     async function load() {
@@ -29,7 +31,7 @@ export default function ReportHistoryPage() {
     load();
   }, []);
   if (loading) return <div className="p-4">Loading reports...</div>;
-  if (error) return <div className="p-4 text-red-500">{err}</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">

@@ -440,20 +440,15 @@ export default function ReportForm({ existingReport, mode = "create" }) {
         )}
       </section>
 
-      {/* <section className="mb-4 animate-fade-in-up">
+      <section className="mb-4 animate-fade-in-up">
         <label className="block font-bold mb-2">Notes</label>
         <textarea
           value={form.notes}
           onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-          className="w-full min-h-[72px] rounded-md px-3 py-2 text-sm"
-          style={{
-            backgroundColor: COLORS.pale,
-            color: COLORS.text,
-            border: `1px solid ${COLORS.accent}33`,
-          }}
+          className="w-full min-h-[72px] rounded-md px-3 py-2 text-sm bg-input"
           placeholder="Optional notes..."
         />
-      </section> */}
+      </section>
 
       {form && (
         <section className="flex flex-col sm:flex-row gap-3 justify-center items-stretch animate-fade-in-up">

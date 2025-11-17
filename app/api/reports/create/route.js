@@ -51,7 +51,7 @@ export async function POST(req) {
       notes: body.notes || null,
     };
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin()
       .from("reports")
       .insert([reportData])
       .select("id");

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { comparePassword, signToken } from "@/lib/auth";
+import { comparePassword, signJwt } from "@/lib/auth";
 
 export async function POST(req) {
   try {
@@ -22,7 +22,7 @@ export async function POST(req) {
         { status: 401 }
       );
 
-    const token = signToken({ id: user.id, username: user.username });
+    const token = signJwt({ id: user.id, username: user.username });
 
     const res = NextResponse.json({ message: "Login successful", token });
     res.cookies.set("token", token, {

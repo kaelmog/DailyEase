@@ -12,9 +12,9 @@ export async function GET(req) {
   if (!decoded)
     return NextResponse.json({ error: "Invalid token" }, { status: 403 });
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin()
     .from("reports")
-    .select("id, report_date, total_sales, transactions")
+    .select("id, report_date, total_sales, transactions, notes")
     .eq("user_id", decoded.id)
     .order("report_date", { ascending: false });
 

@@ -16,7 +16,7 @@ export async function GET(req) {
   if (!decoded)
     return NextResponse.json({ error: "Invalid token" }, { status: 403 });
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin()
     .from("reports")
     .select("*")
     .eq("id", id)
