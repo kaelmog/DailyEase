@@ -17,26 +17,25 @@ export async function POST(req) {
 
     const valid = await comparePassword(password, user.password_hash || "");
     if (!valid)
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 
     const token = signJwt({ id: user.id, username: user.username });
 
-    const res = NextResponse.json({ message: "Login successful", token });
+    const res = NextResponse.json({ message: "Login successful" });
+
+    // Explicit cookie options (keep secure tied to production)
     res.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // explicit to ensure browser sends cookie for fetch + middleware
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
+      // domain: (process.env.NODE_ENV === "production" ? "yourdomain.com" : "localhost")
     });
+
     return res;
   } catch (err) {
     console.error("Login error:", err);
-    return NextResponse.json(
-      { error: "Server error during login" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error during login" }, { status: 500 });
   }
 }

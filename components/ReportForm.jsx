@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useSupabaseData } from "@/hooks/useSupabaseData";
 import ReviewModal from "./ReviewModal";
 import { Disclosure } from "@headlessui/react";
@@ -8,12 +9,7 @@ import { ChevronUpIcon } from "@heroicons/react/24/solid";
 import { formatIdNumber, pretty } from "@/utils/format";
 import { cleanNumericString } from "@/utils/numbers";
 import { getIndonesianFullDate } from "@/utils/dates";
-const COLORS = {
-  bg: "#FAF8F1",
-  accent: "#34656D",
-  text: "#334443",
-  pale: "#FAEAB1",
-};
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const initialPayments = {
   cash: { amount: 0, transactions: 0 },
@@ -43,6 +39,7 @@ const initialSummary = {
 export default function ReportForm({ existingReport, mode = "create" }) {
   const { products, categories, loading } = useSupabaseData();
   const [alertState, setAlertState] = useState(null);
+  const router = useRouter();
   const [form, setForm] = useState(
     existingReport
       ? {
@@ -200,29 +197,32 @@ export default function ReportForm({ existingReport, mode = "create" }) {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-md mx-auto"
-      style={{ backgroundColor: COLORS.bg, color: COLORS.text }}
+      className="min-h-screen px-4 py-6 max-w-md mx-auto bg-primary"
     >
-      <header className="mb-4 animate-fade-in">
-        <h1 className="text-2xl font-bold text-center animate-slide-in-left">
+      <header className="mb-4 animate-fade-in flex space-between">
+        <div className="flex-none w-10%">
+          <button
+                    onClick={() => router.back()}
+                    className="text-text-primary hover:text-accent-primary p-1 rounded transition-colors shrink-0"
+                  >
+                    <ArrowLeft className="w-6 h-6" />
+                  </button>
+        </div>
+        <div className="flex-1 w-90% flex-nowrap">
+          <h1 className="text-2xl font-bold animate-slide-in-left text-right">
           {pretty(form.outlet_name)}
         </h1>
         <p
-          className="text-sm text-center mt-1"
-          style={{ color: COLORS.accent + "CC" }}
+          className="text-sm mt-1 text-right"
         >
           {form.date}
         </p>
+        </div>
       </header>
 
       {alertState && (
         <div
-          className="mb-4 p-3 rounded font-medium"
-          style={{
-            backgroundColor:
-              alertState.type === "success" ? COLORS.accent : "#e53e3e",
-            color: COLORS.bg,
-          }}
+          className={`mb-4 p-3 rounded font-medium` + (alertState.type === "success" ? "bg-status-success" : "bg-status-error")}
         >
           {alertState.message}
         </div>
@@ -230,7 +230,7 @@ export default function ReportForm({ existingReport, mode = "create" }) {
 
       <section className="mb-6 animate-fade-in-up">
         <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">
-          💰 Sales Report Closing
+          Sales Report Closing
         </h2>
         <div className="space-y-3">
           {Object.keys(form.payments).map((key, idx) => (
@@ -238,9 +238,9 @@ export default function ReportForm({ existingReport, mode = "create" }) {
               <span className="flex-1 text-sm">
                 {idx + 1}. {pretty(key)}
               </span>
-              <div className="flex gap-1 w-[48%] max-w-[180px]">
-                <div className="flex-1 flex items-center bg-[#FAEAB1] rounded-lg px-2 py-1">
-                  <span className="text-sm mr-1">Rp</span>
+              <div className="flex flex-wrap gap-1 w-[50%] max-w-[200px]">
+                <div className="w-[200px] h-10 flex  bg-accent-primary rounded-lg pr-2 text-text-secondary items-center justify-center">
+                  <span className="flex items-center justify-center text-sm mr-1 h-full w-16 bg-accent-secondary rounded-lg font-bold">Rp</span>
                   <input
                     inputMode="numeric"
                     value={formatIdNumber(
@@ -256,11 +256,11 @@ export default function ReportForm({ existingReport, mode = "create" }) {
                     onChange={(e) =>
                       handlePaymentAmountChange(key, e.target.value)
                     }
-                    className="w-full bg-transparent text-right text-sm outline-none"
+                    className="w-full bg-transparent text-right text-sm outline-none text-text-primary font-semibold"
                   />
                 </div>
-                <div className="flex-1 flex items-center bg-[#FAEAB1] rounded-lg px-2 py-1">
-                  <span className="text-sm mr-1">Trans</span>
+                <div className="w-[200px] h-10 flex  bg-accent-primary rounded-lg pr-2 text-text-secondary items-center justify-center">
+                  <span className="flex items-center justify-center text-sm mr-1 h-full w-16 bg-accent-secondary rounded-lg font-bold">Trx</span>
                   <input
                     inputMode="numeric"
                     value={formatIdNumber(
@@ -279,7 +279,7 @@ export default function ReportForm({ existingReport, mode = "create" }) {
                       handlePaymentTransChange(key, e.target.value)
                     }
                     placeholder="0"
-                    className="w-full bg-transparent text-right text-sm outline-none"
+                    className="w-full bg-transparent text-right text-sm outline-none text-text-primary font-semibold"
                   />
                 </div>
               </div>
@@ -288,14 +288,10 @@ export default function ReportForm({ existingReport, mode = "create" }) {
         </div>
 
         <div
-          className="mt-4 p-3 rounded-lg flex items-center justify-between shadow-sm"
-          style={{
-            backgroundColor: COLORS.pale + "99",
-            border: `1px solid ${COLORS.accent}66`,
-          }}
+          className="mt-4 pr-3 rounded-lg flex items-center justify-between shadow-sm bg-accent-primary h-10"
         >
-          <span className="text-sm font-medium">Total Sales</span>
-          <span className="text-base font-bold">
+          <span className="flex items-center justify-center h-full w-24 bg-accent-secondary rounded-lg text-text-secondary font-bold">Total</span>
+          <span className="font-bold">
             Rp {formatIdNumber(totalSales)} / {totalTransactions} transaksi
           </span>
         </div>
@@ -303,14 +299,14 @@ export default function ReportForm({ existingReport, mode = "create" }) {
 
       <section className="mb-6 animate-fade-in-up">
         <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">
-          📈 Sales Report Produk
+          Sales Report Produk
         </h2>
         <div className="space-y-3">
           {Object.keys(form.summary_sales).map((key) => (
             <div key={key} className="flex items-center justify-between gap-3">
               <label className="flex-1 text-sm">{pretty(key)}</label>
-              <div className="flex-1 flex items-center bg-[#FAEAB1] rounded-lg px-2 py-1 max-w-[180px]">
-                <span className="text-sm mr-1">Rp</span>
+              <div className="w-[200px] h-10 flex  bg-accent-primary rounded-lg pr-2 text-text-secondary items-center justify-center">
+                  <span className="flex items-center justify-center text-sm mr-1 h-full w-16 bg-accent-secondary rounded-lg font-bold">Rp</span>
                 <input
                   inputMode="numeric"
                   value={formatIdNumber(form.summary_sales[key])}
@@ -332,11 +328,12 @@ export default function ReportForm({ existingReport, mode = "create" }) {
 
       <section className="mb-6 animate-fade-in-up">
         <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">
-          🗑️ Sisa Produk
+          Sisa Produk
         </h2>
         {loading ? (
-          <div className="text-sm" style={{ color: COLORS.accent + "99" }}>
-            Loading products...
+          <div className="flex items-center justify-center gap-2 text-sm text-text-primary">
+            <Loader2 className="w-8 h-8 animate-spin text-accent-primary mb-3" />
+            <span className="text-text-primary">Memuat data produk ....</span>
           </div>
         ) : (
           categories
@@ -349,11 +346,7 @@ export default function ReportForm({ existingReport, mode = "create" }) {
                   {({ open }) => (
                     <>
                       <Disclosure.Button
-                        className="flex justify-between items-center w-full px-2 py-1 rounded-md text-sm font-semibold animate-slide-in-left"
-                        style={{
-                          backgroundColor: COLORS.pale + "60",
-                          color: COLORS.accent,
-                        }}
+                        className="flex justify-between items-center w-full px-2 py-1 rounded-md text-sm font-semibold animate-slide-in-left bg-accent-primary text-text-primary"
                       >
                         {cat.name}
                         <ChevronUpIcon
@@ -374,15 +367,10 @@ export default function ReportForm({ existingReport, mode = "create" }) {
                             </span>
 
                             <div
-                              className="flex items-center border rounded-lg overflow-hidden"
-                              style={{ borderColor: COLORS.accent + "40" }}
+                              className="flex items-center border rounded-lg overflow-hidden bg-input"
                             >
                               <button
-                                className="px-3 py-2 text-lg font-semibold"
-                                style={{
-                                  backgroundColor: COLORS.accent,
-                                  color: COLORS.bg,
-                                }}
+                                className="px-3 py-2 text-lg font-semibold bg-accent-secondary text-text-secondary"
                                 onClick={() =>
                                   updateLeftover(
                                     it.product_id,
@@ -410,15 +398,11 @@ export default function ReportForm({ existingReport, mode = "create" }) {
                                     Number(e.target.value)
                                   )
                                 }
-                                className="w-16 h-10 text-center text-sm bg-transparent border-none outline-none leading-10"
+                                className="w-16 h-10 text-center text-sm bg-transparent border-none outline-none leading-10 text-text-secondary font-semibold"
                               />
 
                               <button
-                                className="px-3 py-2 text-lg font-semibold"
-                                style={{
-                                  backgroundColor: COLORS.accent,
-                                  color: COLORS.bg,
-                                }}
+                                className="px-3 py-2 text-lg font-semibold bg-accent-secondary text-text-secondary"
                                 onClick={() =>
                                   updateLeftover(
                                     it.product_id,
@@ -445,7 +429,7 @@ export default function ReportForm({ existingReport, mode = "create" }) {
         <textarea
           value={form.notes}
           onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-          className="w-full min-h-[72px] rounded-md px-3 py-2 text-sm bg-input"
+          className="w-full min-h-[72px] rounded-md px-3 py-2 text-sm bg-input text-text-secondary"
           placeholder="Optional notes..."
         />
       </section>
@@ -454,14 +438,14 @@ export default function ReportForm({ existingReport, mode = "create" }) {
         <section className="flex flex-col sm:flex-row gap-3 justify-center items-stretch animate-fade-in-up">
           <button
             onClick={() => openReviewModal("sales")}
-            className="px-4 py-2 bg-[#34656D] hover:bg-[#91C4C3] text-white rounded-md"
+            className="px-4 py-2 bg-accent-primary hover:bg-btn-primary-hover text-text-primary rounded-md"
           >
             Preview Sales Report
           </button>
 
           <button
             onClick={() => openReviewModal("leftovers")}
-            className="px-4 py-2 bg-[#34656D] hover:bg-[#91C4C3] text-white rounded-md"
+            className="px-4 py-2 bg-accent-primary hover:bg-btn-primary-hover text-text-primary rounded-md"
           >
             Preview Leftovers
           </button>
@@ -488,9 +472,8 @@ export default function ReportForm({ existingReport, mode = "create" }) {
 
       <footer
         className="mt-6 text-center text-xs"
-        style={{ color: COLORS.text + "99" }}
       >
-        Made by Api Ganteng {`;)`}
+        Made with love for Ayuni 💖
       </footer>
     </div>
   );

@@ -16,9 +16,9 @@ export default function Modal({ open = false, title, children, onClose }) {
       <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
-            className={`relative w-full px-4 py-6 max-w-md mx-auto transform overflow-hidden rounded-2xl bg-primary border border-gray-700 shadow-xl transition-all data-closed:opacity-0 text-text-primary`}
+            className={`relative w-full px-4 py-6 max-w-md mx-auto transform overflow-hidden rounded-2xl bg-primary border border-accent-primary shadow-xl transition-all data-closed:opacity-0 text-text-primary`}
           >
-            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
+            <div className="flex items-center justify-between px-5 py-1 border-b border-accent-primary">
               <DialogTitle
                 as="h3"
                 className="text-lg font-semibold"

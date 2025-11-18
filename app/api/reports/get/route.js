@@ -7,8 +7,7 @@ export async function GET(req) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  const authHeader = req.headers.get("authorization");
-  const token = authHeader?.replace("Bearer ", "");
+  const token = req.cookies.get("token")?.value;
   if (!token)
     return NextResponse.json({ error: "Missing token" }, { status: 401 });
 

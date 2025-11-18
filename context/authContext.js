@@ -1,47 +1,49 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  async function loadUser() {
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "include" });
+      if (!res.ok) {
+        setUser(null);
+      } else {
+        const data = await res.json();
+        setUser(data.user ?? null);
+      }
+    } catch (err) {
+      console.error("[AuthProvider] loadUser error:", err);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const parts = token.split(".");
-      if (parts.length < 2) throw new Error("Invalid token format");
-      const payload = JSON.parse(atob(parts[1]));
-      queueMicrotask(() => setUser(payload));
-    } catch {
-      console.warn("Invalid token found, clearing storage.");
-      localStorage.removeItem("token");
-    }
+    loadUser();
   }, []);
 
-  const login = (token) => {
-    if (!token) return;
-    localStorage.setItem("token", token);
-    try {
-      const parts = token.split(".");
-      if (parts.length < 2) throw new Error("Invalid token format");
-      const payload = JSON.parse(atob(parts[1]));
-      setUser(payload);
-    } catch {
-      console.warn("Failed to parse token during login");
-      localStorage.removeItem("token");
-    }
+  const login = async () => {
+    // After login POST, the server sets a cookie. Call loadUser to refresh state.
+    await loadUser();
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch (err) {
+      console.error("[AuthProvider] logout error:", err);
+    }
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

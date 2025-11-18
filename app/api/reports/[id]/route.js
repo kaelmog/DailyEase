@@ -6,8 +6,7 @@ import { NextResponse } from "next/server";
 export async function GET(req, context) {
   const { id } = await context.params;
 
-  const authHeader = req.headers.get("authorization");
-  const token = authHeader?.replace("Bearer ", "");
+  const token = req.cookies.get("token")?.value;
   if (!token)
     return NextResponse.json({ error: "Missing token" }, { status: 401 });
 

@@ -6,8 +6,7 @@ import ReportForm from "@/components/ReportForm";
 export default function EditReportPage() {
   const { id } = useParams();
   const [report, setReport] = useState(null);
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = null;
 
   useEffect(() => {
     async function load() {

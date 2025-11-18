@@ -74,16 +74,6 @@ export default function ReviewModal({
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
-  async function handleSave() {
-    const user = JSON.parse(localStorage.getItem("user"));
-    const res = await fetch("/api/reports/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ form: item, userId: user.id }),
-    });
-    if (res.ok) alert("Report saved successfully!");
-  }
-
   return (
     <Modal
       title={
@@ -98,7 +88,7 @@ export default function ReviewModal({
         {reportText}
       </pre>
 
-      <div className="mt-5 grid grid-cols-3 gap-4">
+      <div className="mt-5 grid grid-cols-2 gap-4">
         <Button
           onClick={handleCopy}
           className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg h-10"
@@ -108,16 +98,9 @@ export default function ReviewModal({
 
         <Button
           onClick={handleShare}
-          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg"
+          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg h-10"
         >
-          <MessageSquare size={16} /> Bagikan ke WhatsApp
-        </Button>
-
-        <Button
-          onClick={handleSave}
-          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-medium rounded-lg"
-        >
-          <MessageSquare size={16} /> Simpan
+          <MessageSquare size={16} /> WhatsApp
         </Button>
       </div>
     </Modal>

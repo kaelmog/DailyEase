@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { fetcher } from "@/lib/utils";
 import { formatIdNumber } from "@/utils/format";
+import { getIndonesianFullDate } from "@/utils/dates";
 
 import {
   DollarSign,
@@ -13,7 +14,7 @@ import {
   ArrowLeft,
   Loader2,
   AlertTriangle,
-  Receipt,
+  Calendar,
 } from "lucide-react";
 
 // Individual list item (payments / category sales)
@@ -22,7 +23,7 @@ const ReportItem = ({ label, value, transactions }) => (
     <span className="capitalize text-text-secondary">
       {label.replace(/_/g, " ")}
     </span>
-    <span className="font-semibold text-text-primary text-right">
+    <span className="font-semibold text-text-secondary text-right">
       Rp{formatIdNumber(value)}
       {transactions !== undefined && transactions > 0 && (
         <span className="block text-xs font-normal text-text-secondary opacity-80">
@@ -38,7 +39,8 @@ const SectionWrapper = ({ title, icon: Icon, children }) => (
   <div className="bg-secondary p-4 rounded-lg shadow-inner transition-colors">
     <h2 className="flex items-center text-lg font-bold mb-3 text-accent-primary border-b border-row-hover pb-2">
       <Icon className="w-5 h-5 mr-2" />
-      {title === "Metode" ? "Metode Pembayaran" : title === "Kategori" ? "Kategori Penjualan" : title === "Sisa" && "Sisa Produk"}
+      {title === "Metode" ? "Metode Pembayaran" : title === "Kategori" ? "Kategori Penjualan" : title === "Sisa" ? "Sisa Produk" :
+      title === "Internal Notes" ? "Catatan Internal" : title}
     </h2>
     {children}
   </div>
@@ -117,8 +119,8 @@ export default function ViewReportPage() {
             key={item.product_id}
             className="flex justify-between items-center py-2 border-b border-row-hover last:border-b-0"
           >
-            <span className="capitalize text-text-primary">{item.name}</span>
-            <span className="text-lg font-bold text-accent-primary">
+            <span className="capitalize text-text-secondary">{item.name}</span>
+            <span className="text-lg text-text-secondary">
               {item.quantity_left} pcs
             </span>
           </li>
@@ -130,7 +132,7 @@ export default function ViewReportPage() {
   // LOADING STATE
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
         <Loader2 className="w-8 h-8 animate-spin text-accent-primary mb-3" />
         <span className="text-text-primary font-medium">
           Loading report data...
@@ -164,37 +166,37 @@ export default function ViewReportPage() {
         <header className="flex items-center justify-between mb-6 pb-4 border-b border-row-hover">
           <button
             onClick={() => router.back()}
-            className="text-text-secondary hover:text-accent-primary p-1 rounded transition-colors flex-shrink-0"
+            className="text-text-primary hover:text-accent-primary p-1 rounded transition-colors shrink-0"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
 
           <div className="flex flex-col text-right">
-            <h1 className="text-2xl font-extrabold">Sales Report</h1>
-            <p className="text-sm text-text-secondary">{report.outlet_name}</p>
+            <h1 className="text-2xl font-extrabold text-input">Laporan Penjualan</h1>
+            <p className="text-sm text-input">THE WHEAT RS PURI CINERE</p>
           </div>
         </header>
 
         {/* Summary Cards */}
         <div className="bg-secondary p-5 rounded-xl shadow-lg mb-6">
           <div className="flex items-center mb-3">
-            <Receipt className="w-5 h-5 text-accent-secondary mr-2" />
+            <Calendar className="w-5 h-5 text-text-secondary mr-2" />
             <h2 className="text-lg font-medium text-text-secondary">
-              Summary for {report.report_date}
+              {getIndonesianFullDate(report.report_date)}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-row-hover pt-4">
             <div className="p-2 border-b border-row-hover md:border-b-0 md:border-r">
-              <p className="text-sm text-text-secondary">Total Sales</p>
-              <p className="text-3xl font-extrabold text-accent-primary">
-                {formatIdNumber(report.total_sales || 0)}
+              <p className="text-sm text-text-secondary font-semibold">PENJUALAN</p>
+              <p className="font-extrabold text-accent-primary mt-4">
+                Rp{formatIdNumber(report.total_sales || 0)}
               </p>
             </div>
 
             <div className="p-2">
-              <p className="text-sm text-text-secondary">Transactions</p>
-              <p className="text-3xl font-extrabold text-accent-secondary">
+              <p className="text-sm text-text-secondary font-semibold">TRANSAKSI</p>
+              <p className="font-extrabold text-accent-primary mt-4">
                 {report.transactions || 0}
               </p>
             </div>
@@ -207,11 +209,11 @@ export default function ViewReportPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center justify-center py-2 px-3 text-sm font-semibold transition-colors 
+              className={`flex items-center justify-center py-2 px-3 text-sm font-semibold transition-colors rounded-lg 
                 ${
                   activeTab === tab.id
-                    ? "border-b-2 border-accent-primary text-accent-primary"
-                    : "text-text-secondary hover:text-text-primary"
+                    ? "border-b-2 border-accent-primary rounded-b-none text-input bg-accent-primary hover:bg-btn-primary-hover"
+                    : "text-text-primary hover:text-text-hover hover:bg-row-hover hover:rounded-b-none"
                 }`}
             >
               <tab.icon className="w-4 h-4 mr-2" />
@@ -240,7 +242,7 @@ export default function ViewReportPage() {
         {report.notes && (
           <div className="mt-6">
             <SectionWrapper title="Internal Notes" icon={ScrollText}>
-              <p className="text-sm text-text-primary p-3 bg-input rounded-lg italic">
+              <p className="text-sm text-text-secondary p-3 bg-input rounded-lg italic">
                 {report.notes}
               </p>
             </SectionWrapper>

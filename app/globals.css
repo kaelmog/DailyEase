@@ -6,36 +6,27 @@
 }
 
 @theme {
-  --color-primary: #c3f584; /* MAIN BACKGROUND: VIBRANT Stabilo Green/Lime */
-  --color-secondary: #e7f7dd; /* Secondary Card/Modal BG (Now slightly darker) */
-  --color-input: #ffffff; /* Input Field BG (Pure White) */
-  --color-row-hover: #aec97a; /* Hover state for table rows (Darker BG) */
 
-  /* Text */
-  --color-text-primary: #1a2421; /* Deep Forest (Main Text - Great contrast) */
-  --color-text-secondary: #45524b; /* Light Slate (Muted Labels, Placeholder) */
-  --color-text-hover: #000000; /* Pure Black on light hover */
+--color-primary: #1a4097;
+--color-secondary: #f0f2f5;
+--color-input: #ffffff;
+--color-row-hover: #d4d9e0;
 
-  /* Accents & Actions (SHARPENED CONTRASTING ACCENTS) */
-  --color-accent-primary: #5ba8ae; /* Pale Teal (Primary Action - Sharper) */
-  --color-accent-secondary: #ffd7b2; /* Soft Peach/Coral (Secondary Action) */
+--color-text-primary: #ffffff;
+--color-text-secondary: #222f3e;
+--color-text-hover: #000000;
 
-  /* --- ALERT & STATUS COLORS (NEW) --- */
-  --color-status-success: #e8d5b5; /* Pale Gold/Tan (Success messages, totals) */
-  --color-status-warning: #ffc26b; /* Soft Amber (Caution/Warning) */
-  --color-status-error: #e57373; /* Soft Red (Error/Danger) */
+--color-accent-primary: #c48d42;
+--color-accent-secondary: #e8d4a9;
 
-  /* Button Hover States (Light Mode: Darkened for contrast) */
-  --color-btn-primary-hover: #478e94; /* Darkened Pale Teal */
-  --color-btn-secondary-hover: #e3b693; /* Darkened Soft Peach */
+--color-status-success: #709a34;
+--color-status-warning: #ff9900;
+--color-status-error: #d63031;
+
+--color-btn-primary-hover: #a17436;
+--color-btn-secondary-hover: #c2b189;
+
 }
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
 
 @keyframes fade-in {
   from {

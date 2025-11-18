@@ -3,8 +3,7 @@ import { verifyToken } from "@/lib/jwt";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
 export async function GET(req) {
-  const authHeader = req.headers.get("authorization");
-  const token = authHeader?.replace("Bearer ", "");
+  const token = req.cookies.get("token")?.value;
   if (!token)
     return NextResponse.json({ error: "Missing token" }, { status: 401 });
 
