@@ -194,6 +194,8 @@ export default function ReportForm({ existingReport, mode = 'create' }) {
     }
   };
 
+  console.log('CL REP ==>', form);
+
   return (
     <div className="min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
       <header className="mb-4 animate-fade-in flex space-between">

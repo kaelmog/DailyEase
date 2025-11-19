@@ -23,7 +23,7 @@ export default function ViewReportPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [report, setReport] = useState(null);
+  const [report, setReport] = useState();
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [activeTab, setActiveTab] = useState('payments');
@@ -35,7 +35,34 @@ export default function ViewReportPage() {
       try {
         setLoading(true);
         const data = await fetcher(`/api/reports/get?id=${id}`);
-        if (mounted) setReport(data);
+        if (mounted)
+          setReport({
+            ...data,
+            payments: {
+              cash: data.payments.cash,
+              qris: data.payments.qris,
+              grabfood: data.payments.grabfood,
+              gofood: data.payments.gofood,
+              debit: data.payments.debit,
+              credit_card: data.payments.credit_card,
+              transfer: data.payments.transfer,
+              voucher: data.payments.voucher,
+              transfer_outstanding: data.payments.transfer_outstanding,
+            },
+            category_sales: {
+              pastry: data.category_sales.pastry,
+              bread: data.category_sales.bread,
+              daily: data.category_sales.daily,
+              drink: data.category_sales.drink,
+              susu_kurma: data.category_sales.susu_kurma,
+              mineral_water: data.category_sales.mineral_water,
+              fresh_juice: data.category_sales.fresh_juice,
+              susu_uht: data.category_sales.susu_uht,
+              coffee_spoke: data.category_sales.coffee_spoke,
+              ongkir: data.category_sales.ongkir,
+              pb1: data.category_sales.pb1,
+            },
+          });
       } catch (e) {
         if (mounted) setErr(e.message || 'Failed to load report');
       } finally {
