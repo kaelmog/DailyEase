@@ -39,7 +39,7 @@ export default function ReportsPage() {
   return (
     <div className="min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
       <header className="flex mb-4 px-2">
-        <h1 className="flex-1 text-3xl font-bold text-text-primary md:text-sm">Riwayat Laporan</h1>
+        <h1 className="flex-1 text-3xl font-bold text-text-primary">Riwayat Laporan</h1>
         <Link href="/reports/new">
           <Button className="flex-none bg-accent-primary px-3 py-2 hover:bg-btn-primary-hover active:bg-btn-primary-hover rounded-lg">
             Buat Baru
