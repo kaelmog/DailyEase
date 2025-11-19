@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Input from '@/components/ui/input';
 import Button from '@/components/ui/button';
-import ErrorBanner from '@/components/ui/errorBanner';
+import ErrorBanner from '@/components/ui/ErrorBanner';
 import { Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
