@@ -2,31 +2,61 @@
   "name": "daily-ease",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest"
   },
   "dependencies": {
-    "next": "16.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.80.0",
     "bcrypt": "^6.0.0",
-    "zod": "^4.1.12",
-    "lucide-react": "^0.277.0"
+    "bcryptjs": "^3.0.3",
+    "globals": "^16.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.277.0",
+    "next": "15.x",
+    "react": "18.3.x",
+    "react-dom": "18.3.x",
+    "swr": "^2.3.6",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@eslint/js": "^9.39.1",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "14.0.0",
     "@types/node": "^20",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
+    "eslint": "9.x",
     "eslint-config-next": "16.0.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "jsdom": "^27.2.0",
+    "prettier": "3.x",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "5.x",
+    "vitest": "1.x"
+  },
+  "pnpm": {
+    "overrides": {
+      "glob": "^10.3.10",
+      "minimatch": "^9.0.3",
+      "rimraf": "^5.0.5",
+      "mkdirp": "^3.0.1",
+      "inflight": "0.0.0",
+      "supports-color": "^9.0.0",
+      "debug": "^4.3.5",
+      "vite": "5.x",
+      "vitest": "1.x",
+      "eslint": "9.x"
+    }
   }
 }

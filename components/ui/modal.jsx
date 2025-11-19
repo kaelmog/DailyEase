@@ -8,37 +8,32 @@ import {
 } from "@headlessui/react";
 import { X } from "lucide-react";
 
-export default function Modal({
-  title,
-  open,
-  onClose,
-  children,
-  className = "",
-}) {
+export default function Modal({ open = false, title, children, onClose }) {
+  if (!open) return null;
   return (
-    <Dialog open={open} onClose={onClose} className="relative z-50">
-      <DialogBackdrop className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity data-[closed]:opacity-0" />
+    <Dialog open={open} onClose={onClose} className="relative z-50  text-text-primary">
+      <DialogBackdrop className="fixed inset-0 bg-secondary/60 backdrop-blur-sm transition-opacity data-closed:opacity-0" />
       <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
-            className={`relative w-full max-w-2xl transform overflow-hidden rounded-2xl bg-[#1c1f24] text-gray-200 border border-gray-700 shadow-xl transition-all data-[closed]:opacity-0 ${className}`}
+            className={`relative w-full px-4 py-2 max-w-md mx-auto transform overflow-hidden rounded-2xl bg-primary border border-accent-primary shadow-xl transition-all data-closed:opacity-0 text-text-primary`}
           >
-            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-700">
+            <div className="flex items-center pl-5 py-1 border-b border-accent-primary">
               <DialogTitle
                 as="h3"
-                className="text-lg font-semibold text-gray-100"
+                className="text-lg font-semibold flex-1 text-left w-90%"
               >
                 {title}
               </DialogTitle>
               <button
                 onClick={onClose}
-                className="p-2 rounded-md hover:bg-gray-800 transition"
+                className="p-2 rounded-md hover:bg-secondary-primary transition hover:bg-btn-primary-hover active:bg-btn-secondary-hover flex-none text-right w-10%"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="max-h-[65vh] overflow-y-auto px-5 py-4 text-sm whitespace-pre-wrap font-mono leading-relaxed">
+            <div className="max-h-[65vh] overflow-y-auto px-5 py-4 text-sm whitespace-pre-wrap font-mono leading-relaxed text-text-primary">
               {children}
             </div>
           </DialogPanel>

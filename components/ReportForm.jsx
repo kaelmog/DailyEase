@@ -1,20 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState, useCallback } from "react";
-import { useSupabaseData } from "@/hooks/useSupabaseData";
-import ReviewModal from "./ReviewModal";
-import { Disclosure } from "@headlessui/react";
-import { ChevronUpIcon } from "@heroicons/react/24/solid";
-import { formatIdNumber, pretty } from "@/utils/format";
-import { cleanNumericString } from "@/utils/numbers";
-import { getIndonesianFullDate } from "@/utils/dates";
-
-const COLORS = {
-  bg: "#FAF8F1",
-  accent: "#34656D",
-  text: "#334443",
-  pale: "#FAEAB1",
-};
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSupabaseData } from '@/hooks/useSupabaseData';
+import ReviewModal from './ReviewModal';
+import { Disclosure } from '@headlessui/react';
+import { ChevronUpIcon } from '@heroicons/react/24/solid';
+import { formatIdNumber, pretty } from '@/utils/format';
+import { cleanNumericString } from '@/utils/numbers';
+import { getIndonesianFullDate } from '@/utils/dates';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 const initialPayments = {
   cash: { amount: 0, transactions: 0 },
@@ -38,20 +33,34 @@ const initialSummary = {
   fresh_juice: 0,
   susu_uht: 0,
   coffee_spoke: 0,
+  ongkir: 0,
   pb1: 0,
 };
 
-export default function ReportForm() {
+export default function ReportForm({ existingReport, mode = 'create' }) {
   const { products, categories, loading } = useSupabaseData();
-  const [alert, setAlert] = useState(null);
-  const [form, setForm] = useState({
-    date: getIndonesianFullDate(),
-    outlet_name: "The Wheat RS PURI CINERE",
-    payments: { ...initialPayments },
-    summary_sales: { ...initialSummary },
-    leftovers: [],
-    notes: "",
-  });
+  const [alertState, setAlertState] = useState(null);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState(
+    existingReport
+      ? {
+          ...existingReport,
+          date: getIndonesianFullDate(existingReport.date),
+          outlet_name: 'The Wheat RS PURI CINERE',
+          payments: existingReport.payments || { ...initialPayments },
+          summary_sales: existingReport.summary_sales || { ...initialSummary },
+          leftovers: existingReport.leftovers || [],
+        }
+      : {
+          date: new Date().toLocaleDateString('en-CA'),
+          outlet_name: 'The Wheat RS PURI CINERE',
+          payments: { ...initialPayments },
+          summary_sales: { ...initialSummary },
+          leftovers: [],
+          notes: '',
+        }
+  );
 
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [reviewType, setReviewType] = useState(null);
@@ -65,7 +74,15 @@ export default function ReportForm() {
     if (!loading && products?.length) {
       const leftovers = products.map((p) => ({
         product_id: p.id,
+        name: p.name,
         quantity_left: 0,
+        product_category: p.product_categories
+          ? {
+              id: p.product_categories.id,
+              name: p.product_categories.name,
+              sort_order: p.product_categories.sort_order,
+            }
+          : { id: null, name: 'Uncategorized' },
       }));
 
       queueMicrotask(() => {
@@ -80,30 +97,22 @@ export default function ReportForm() {
     const grouped = {};
     (form.leftovers || []).forEach((l) => {
       const p = prodById[l.product_id];
-      const cat = p?.product_categories?.name || "Uncategorized";
+      const cat = p?.product_categories?.name || 'Uncategorized';
       if (!grouped[cat]) grouped[cat] = [];
-      grouped[cat].push({ ...l, name: p?.name || "Unknown" });
+      grouped[cat].push({ ...l, name: p?.name || 'Unknown' });
     });
     return grouped;
   }, [form.leftovers, products]);
 
-  const totalSales = useMemo(
-    () =>
-      Object.values(form.payments).reduce(
-        (acc, p) => acc + (Number(p.amount) || 0),
-        0
-      ),
-    [form.payments]
-  );
+  const totalSales = useMemo(() => {
+    const payments = form?.payments || {};
+    return Object.values(payments).reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
+  }, [form.payments]);
 
-  const totalTransactions = useMemo(
-    () =>
-      Object.values(form.payments).reduce(
-        (acc, p) => acc + (Number(p.transactions) || 0),
-        0
-      ),
-    [form.payments]
-  );
+  const totalTransactions = useMemo(() => {
+    const payments = form?.payments || {};
+    return Object.values(payments).reduce((acc, p) => acc + (Number(p.transactions) || 0), 0);
+  }, [form.payments]);
 
   const handlePaymentAmountChange = useCallback((key, value) => {
     const num = cleanNumericString(value);
@@ -144,86 +153,125 @@ export default function ReportForm() {
     });
   }
 
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    const token = localStorage.getItem('token');
+    const endpoint = mode === 'edit' ? '/api/reports/update' : '/api/reports/create';
+
+    const payload = mode === 'edit' ? { id: form.id, updates: form } : form;
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setAlertState({
+          type: 'success',
+          message: mode === 'edit' ? 'Report updated!' : 'Report created!',
+        });
+        router.push('/reports');
+      } else {
+        setAlertState({
+          type: 'error',
+          message: data.error || 'Failed to save report',
+        });
+      }
+    } catch (e) {
+      console.error('Submit error:', e);
+      setAlertState({
+        type: 'error',
+        message: e.message || 'Unexpected error occurred.',
+      });
+    }
+  };
+
+  console.log('CL REP ==>', form);
+
   return (
-    <div
-      className="min-h-screen px-4 py-6 max-w-md mx-auto"
-      style={{ backgroundColor: COLORS.bg, color: COLORS.text }}
-    >
-      <header className="mb-4 animate-fade-in">
-        <h1 className="text-2xl font-bold text-center animate-slide-in-left">
-          {pretty(form.outlet_name)}
-        </h1>
-        <p
-          className="text-sm text-center mt-1"
-          style={{ color: COLORS.accent + "CC" }}
-        >
-          {form.date}
-        </p>
+    <div className="min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
+      <header className="mb-4 animate-fade-in flex space-between">
+        <div className="flex-none w-10%">
+          <button
+            onClick={() => router.back()}
+            className="text-text-primary hover:text-accent-primary p-1 rounded transition-colors shrink-0"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="flex-1 w-90% flex-nowrap">
+          <h1 className="text-2xl font-bold animate-slide-in-left text-right">
+            {pretty(form.outlet_name)}
+          </h1>
+          <p className="text-sm mt-1 text-right">{getIndonesianFullDate(form.date)}</p>
+        </div>
       </header>
 
-      {alert && (
+      {alertState && (
         <div
-          className="mb-4 p-3 rounded font-medium"
-          style={{
-            backgroundColor:
-              alert.type === "success" ? COLORS.accent : "#e53e3e",
-            color: COLORS.bg,
-          }}
+          className={
+            `mb-4 p-3 rounded font-medium` +
+            (alertState.type === 'success' ? 'bg-status-success' : 'bg-status-error')
+          }
         >
-          {alert.message}
+          {alertState.message}
         </div>
       )}
 
       <section className="mb-6 animate-fade-in-up">
-        <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">
-          💰 Sales Report Closing
-        </h2>
+        <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">Sales Report Closing</h2>
         <div className="space-y-3">
           {Object.keys(form.payments).map((key, idx) => (
             <div key={key} className="flex items-center gap-2 justify-between">
               <span className="flex-1 text-sm">
                 {idx + 1}. {pretty(key)}
               </span>
-              <div className="flex gap-1 w-[48%] max-w-[180px]">
-                <div className="flex-1 flex items-center bg-[#FAEAB1] rounded-lg px-2 py-1">
-                  <span className="text-sm mr-1">Rp</span>
-                  <input
-                    inputMode="numeric"
-                    value={formatIdNumber(form.payments[key].amount)}
-                    onFocus={(e) => {
-                      if (e.target.value === "0") e.target.value = "";
-                    }}
-                    onBlur={(e) => {
-                      if (e.target.value === "")
-                        handlePaymentAmountChange(key, 0);
-                    }}
-                    onChange={(e) =>
-                      handlePaymentAmountChange(key, e.target.value)
-                    }
-                    className="w-full bg-transparent text-right text-sm outline-none"
-                  />
-                </div>
-                <div className="flex-1 flex items-center bg-[#FAEAB1] rounded-lg px-2 py-1">
-                  <span className="text-sm mr-1">Trans</span>
+              <div className="flex flex-wrap gap-1 w-[50%] max-w-[200px]">
+                <div className="w-[200px] h-10 flex  bg-accent-primary rounded-lg pr-2 text-text-secondary items-center justify-center">
+                  <span className="flex items-center justify-center text-sm mr-1 h-full w-16 bg-accent-secondary rounded-lg font-bold rounded-r-none">
+                    Rp
+                  </span>
                   <input
                     inputMode="numeric"
                     value={formatIdNumber(
-                      form.payments[key].transactions
-                        ? form.payments[key].transactions
-                        : ""
+                      form.payments[key].amount ? form.payments[key].amount : ''
                     )}
                     onFocus={(e) => {
-                      if (e.target.value === "0") e.target.value = "";
+                      if (e.target.value === '0') e.target.value = '';
                     }}
                     onBlur={(e) => {
-                      if (e.target.value === "")
-                        handlePaymentAmountChange(key, 0);
+                      if (e.target.value === '') handlePaymentAmountChange(key, 0);
                     }}
-                    onChange={(e) =>
-                      handlePaymentTransChange(key, e.target.value)
-                    }
+                    onChange={(e) => handlePaymentAmountChange(key, e.target.value)}
+                    className="w-full bg-transparent text-right text-sm outline-none text-text-primary font-semibold"
+                  />
+                </div>
+                <div className="w-[200px] h-10 flex  bg-accent-primary rounded-lg pr-2 text-text-secondary items-center justify-center">
+                  <span className="flex items-center justify-center text-sm mr-1 h-full w-16 bg-accent-secondary rounded-lg font-bold rounded-r-none">
+                    Trx
+                  </span>
+                  <input
+                    inputMode="numeric"
+                    value={formatIdNumber(
+                      form.payments[key].transactions ? form.payments[key].transactions : ''
+                    )}
+                    onFocus={(e) => {
+                      if (e.target.value === '0') e.target.value = '';
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') handlePaymentAmountChange(key, 0);
+                    }}
+                    onChange={(e) => handlePaymentTransChange(key, e.target.value)}
                     placeholder="0"
-                    className="w-full bg-transparent text-right text-sm outline-none"
+                    className="w-full bg-transparent text-right text-sm outline-none text-text-primary font-semibold"
                   />
                 </div>
               </div>
@@ -231,42 +279,37 @@ export default function ReportForm() {
           ))}
         </div>
 
-        <div
-          className="mt-4 p-3 rounded-lg flex items-center justify-between shadow-sm"
-          style={{
-            backgroundColor: COLORS.pale + "99",
-            border: `1px solid ${COLORS.accent}66`,
-          }}
-        >
-          <span className="text-sm font-medium">Total Sales</span>
-          <span className="text-base font-bold">
+        <div className="mt-4 pr-3 rounded-lg flex items-center justify-between shadow-sm bg-accent-primary h-10">
+          <span className="flex items-center justify-center h-full w-24 bg-accent-secondary rounded-lg text-text-secondary font-bold">
+            Total
+          </span>
+          <span className="font-bold">
             Rp {formatIdNumber(totalSales)} / {totalTransactions} transaksi
           </span>
         </div>
       </section>
 
       <section className="mb-6 animate-fade-in-up">
-        <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">
-          📈 Sales Report Produk
-        </h2>
+        <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">Sales Report Produk</h2>
         <div className="space-y-3">
           {Object.keys(form.summary_sales).map((key) => (
             <div key={key} className="flex items-center justify-between gap-3">
               <label className="flex-1 text-sm">{pretty(key)}</label>
-              <div className="flex-1 flex items-center bg-[#FAEAB1] rounded-lg px-2 py-1 max-w-[180px]">
-                <span className="text-sm mr-1">Rp</span>
+              <div className="w-[200px] h-10 flex  bg-accent-primary rounded-lg pr-2 items-center justify-center">
+                <span className="flex items-center justify-center text-sm mr-1 h-full w-16 text-text-secondary bg-accent-secondary rounded-lg font-bold rounded-r-none">
+                  Rp
+                </span>
                 <input
                   inputMode="numeric"
                   value={formatIdNumber(form.summary_sales[key])}
                   onFocus={(e) => {
-                    if (e.target.value === "0") e.target.value = "";
+                    if (e.target.value === '0') e.target.value = '';
                   }}
                   onBlur={(e) => {
-                    if (e.target.value === "")
-                      handlePaymentAmountChange(key, 0);
+                    if (e.target.value === '') handlePaymentAmountChange(key, 0);
                   }}
                   onChange={(e) => handleSummaryChange(key, e.target.value)}
-                  className="w-full bg-transparent text-right text-sm outline-none"
+                  className="w-full bg-transparent text-right text-sm outline-none text-text-primary font-semibold"
                 />
               </div>
             </div>
@@ -275,12 +318,11 @@ export default function ReportForm() {
       </section>
 
       <section className="mb-6 animate-fade-in-up">
-        <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">
-          🗑️ Sisa Produk
-        </h2>
+        <h2 className="font-semibold text-lg mb-3 animate-slide-in-left">Sisa Produk</h2>
         {loading ? (
-          <div className="text-sm" style={{ color: COLORS.accent + "99" }}>
-            Loading products...
+          <div className="flex items-center justify-center gap-2 text-sm text-text-primary">
+            <Loader2 className="w-8 h-8 animate-spin text-accent-primary mb-3" />
+            <span className="text-text-primary">Memuat data produk ....</span>
           </div>
         ) : (
           categories
@@ -292,17 +334,11 @@ export default function ReportForm() {
                 <Disclosure key={cat.name} as="div" className="mb-3">
                   {({ open }) => (
                     <>
-                      <Disclosure.Button
-                        className="flex justify-between items-center w-full px-2 py-1 rounded-md text-sm font-semibold animate-slide-in-left"
-                        style={{
-                          backgroundColor: COLORS.pale + "60",
-                          color: COLORS.accent,
-                        }}
-                      >
+                      <Disclosure.Button className="flex justify-between items-center w-full px-2 py-1 rounded-md text-sm font-semibold animate-slide-in-left bg-accent-primary text-text-primary">
                         {cat.name}
                         <ChevronUpIcon
                           className={`w-5 h-5 transform transition-transform duration-200 ${
-                            open ? "rotate-180" : ""
+                            open ? 'rotate-180' : ''
                           }`}
                         />
                       </Disclosure.Button>
@@ -313,25 +349,13 @@ export default function ReportForm() {
                             key={it.product_id}
                             className="flex items-center justify-between gap-3"
                           >
-                            <span className="flex-1 truncate text-sm">
-                              {it.name}
-                            </span>
+                            <span className="flex-1 truncate text-sm">{it.name}</span>
 
-                            <div
-                              className="flex items-center border rounded-lg overflow-hidden"
-                              style={{ borderColor: COLORS.accent + "40" }}
-                            >
+                            <div className="flex items-center border rounded-lg overflow-hidden bg-input">
                               <button
-                                className="px-3 py-2 text-lg font-semibold"
-                                style={{
-                                  backgroundColor: COLORS.accent,
-                                  color: COLORS.bg,
-                                }}
+                                className="px-3 py-2 text-lg font-semibold bg-accent-secondary text-text-secondary active:bg-btn-secondary-hover"
                                 onClick={() =>
-                                  updateLeftover(
-                                    it.product_id,
-                                    Math.max(0, it.quantity_left - 1)
-                                  )
+                                  updateLeftover(it.product_id, Math.max(0, it.quantity_left - 1))
                                 }
                               >
                                 –
@@ -341,33 +365,21 @@ export default function ReportForm() {
                                 type="number"
                                 value={it.quantity_left}
                                 onFocus={(e) => {
-                                  if (e.target.value === "0")
-                                    e.target.value = "";
+                                  if (e.target.value === '0') e.target.value = '';
                                 }}
                                 onBlur={(e) => {
-                                  if (e.target.value === "")
-                                    updateLeftover(it.product_id, 0);
+                                  if (e.target.value === '') updateLeftover(it.product_id, 0);
                                 }}
                                 onChange={(e) =>
-                                  updateLeftover(
-                                    it.product_id,
-                                    Number(e.target.value)
-                                  )
+                                  updateLeftover(it.product_id, Number(e.target.value))
                                 }
-                                className="w-16 h-10 text-center text-sm bg-transparent border-none outline-none leading-10"
+                                className="w-16 h-10 text-center text-sm bg-transparent border-none outline-none leading-10 text-text-secondary font-semibold"
                               />
 
                               <button
-                                className="px-3 py-2 text-lg font-semibold"
-                                style={{
-                                  backgroundColor: COLORS.accent,
-                                  color: COLORS.bg,
-                                }}
+                                className="px-3 py-2 text-lg font-semibold bg-accent-secondary text-text-secondary active:bg-btn-secondary-hover"
                                 onClick={() =>
-                                  updateLeftover(
-                                    it.product_id,
-                                    Number(it.quantity_left || 0) + 1
-                                  )
+                                  updateLeftover(it.product_id, Number(it.quantity_left || 0) + 1)
                                 }
                               >
                                 +
@@ -384,35 +396,42 @@ export default function ReportForm() {
         )}
       </section>
 
-      {/* <section className="mb-4 animate-fade-in-up">
+      <section className="mb-4 animate-fade-in-up">
         <label className="block font-bold mb-2">Notes</label>
         <textarea
           value={form.notes}
           onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-          className="w-full min-h-[72px] rounded-md px-3 py-2 text-sm"
-          style={{
-            backgroundColor: COLORS.pale,
-            color: COLORS.text,
-            border: `1px solid ${COLORS.accent}33`,
-          }}
+          className="w-full min-h-[72px] rounded-md px-3 py-2 text-sm bg-input text-text-secondary"
           placeholder="Optional notes..."
         />
-      </section> */}
+      </section>
 
       {form && (
         <section className="flex flex-col sm:flex-row gap-3 justify-center items-stretch animate-fade-in-up">
           <button
-            onClick={() => openReviewModal("sales")}
-            className="px-4 py-2 bg-[#34656D] hover:bg-[#91C4C3] text-white rounded-md"
+            onClick={() => openReviewModal('sales')}
+            className="px-4 py-2 bg-accent-primary hover:bg-btn-primary-hover text-text-primary rounded-md active:bg-btn-primary-hover"
           >
             Preview Sales Report
           </button>
 
           <button
-            onClick={() => openReviewModal("leftovers")}
-            className="px-4 py-2 bg-[#34656D] hover:bg-[#91C4C3] text-white rounded-md"
+            onClick={() => openReviewModal('leftovers')}
+            className="px-4 py-2 bg-accent-primary hover:bg-btn-primary-hover text-text-primary rounded-md active:bg-btn-primary-hover"
           >
             Preview Leftovers
+          </button>
+
+          <button
+            disabled={isSubmitting}
+            onClick={handleSubmit}
+            className="px-4 py-2 flex items-center justify-center bg-green-600 hover:bg-green-700 active:bg-green-700 disabled:bg-green-700 text-text-primary rounded-md"
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-5 h-5 animate-spin text-text-primary text-center" />
+            ) : (
+              'Submit Report'
+            )}
           </button>
 
           <ReviewModal
@@ -428,12 +447,7 @@ export default function ReportForm() {
         </section>
       )}
 
-      <footer
-        className="mt-6 text-center text-xs"
-        style={{ color: COLORS.text + "99" }}
-      >
-        Made by Api Ganteng {`;)`}
-      </footer>
+      <footer className="mt-6 text-center text-xs">Made with love for Ayuni 💖</footer>
     </div>
   );
 }
