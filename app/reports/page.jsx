@@ -6,7 +6,7 @@ import { fetcher } from '@/utils/fetcher';
 import { getIndonesianFullDate } from '@/utils/dates';
 import { formatIdNumber } from '@/utils/format';
 import { Button } from '@headlessui/react';
-import Loader from '@/components/ui/Loader';
+import Loader from '@/components/ui/loader';
 
 export default function ReportsPage() {
   const [reports, setReports] = useState([]);

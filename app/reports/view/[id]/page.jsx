@@ -7,8 +7,8 @@ import { getIndonesianFullDate, getIndonesianShortDate } from '@/utils/dates';
 import { formatIdNumber } from '@/utils/format';
 import ReportItem from '@/components/report/ReportItem';
 import SectionWrapper from '@/components/report/SectionWrapper';
-import Loader from '@/components/ui/Loader';
-import ErrorBanner from '@/components/ui/ErrorBanner';
+import Loader from '@/components/ui/loader';
+import ErrorBanner from '@/components/ui/errorBanner';
 import {
   DollarSign,
   ShoppingBag,

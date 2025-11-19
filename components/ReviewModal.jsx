@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Copy, MessageSquare } from 'lucide-react';
-import Modal from '@/components/ui/Modal';
-import Button from '@/components/ui/Button';
+import Modal from '@/components/ui/modal';
+import Button from '@/components/ui/button';
 import { generateSalesReportMessage, generateLeftoversReportMessage } from '@/utils/reports';
 
 export default function ReviewModal({

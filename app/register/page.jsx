@@ -1,8 +1,8 @@
 'use client';
 import React, { useState } from 'react';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import ErrorBanner from '@/components/ui/ErrorBanner';
+import Input from '@/components/ui/input';
+import Button from '@/components/ui/button';
+import ErrorBanner from '@/components/ui/errorBanner';
 import { Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {

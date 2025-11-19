@@ -1,7 +1,7 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Loader from "./ui/Loader";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Loader from './ui/loader';
 
 export default function ReportActions({ reportId, onDeleted }) {
   const [loading] = useState(false);
@@ -12,13 +12,13 @@ export default function ReportActions({ reportId, onDeleted }) {
   };
 
   async function handleDelete() {
-    if (!confirm("Are you sure you want to delete this report?")) return;
-    const token = localStorage.getItem("token");
+    if (!confirm('Are you sure you want to delete this report?')) return;
+    const token = localStorage.getItem('token');
 
-    const res = await fetch("/api/reports/delete", {
-      method: "POST",
+    const res = await fetch('/api/reports/delete', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ id: reportId }),
@@ -46,7 +46,7 @@ export default function ReportActions({ reportId, onDeleted }) {
         disabled={loading}
         className="px-2 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-500 disabled:opacity-60"
       >
-        {loading ? (<Loader label="Deleting..." />) : "Delete"}
+        {loading ? <Loader label="Deleting..." /> : 'Delete'}
       </button>
     </div>
   );
