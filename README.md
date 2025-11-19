@@ -1,7 +1,7 @@
 # Daily-Ease — v6 Stable 1.0
 
-Daily-Ease is a lightweight, mobile-friendly reporting system built with **Next.js App Router**, designed for creating, managing, and sharing **daily sales reports** and **product leftovers**.  
-It includes a full authentication system, protected routes, Supabase integration, and smooth UI/UX tailored for real outlet use.
+**DailyEase** is an intuitive web app built to simplify and streamline daily reporting for retail or F&B operations.  
+Originally created to help my girlfriend with her daily reports, it’s designed to make the reporting process faster, cleaner, and less error-prone — so she can spend more time focusing on what matters.
 
 ---
 
@@ -47,39 +47,58 @@ It includes a full authentication system, protected routes, Supabase integration
 | Icons     | Lucide                  |
 | UI State  | Custom hooks + context  |
 
----
+## 🖥️ Setup Instructions
 
-## 📦 Project Setup
-
-### 1️⃣ Install Dependencies
+### 1. Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/<yourusername>/daily-ease.git
+cd daily-ease
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Set up environmet variables
 
-## Learn More
+Create a .env.local file:
 
-To learn more about Next.js, take a look at the following resources:
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+JWT_SECRET=your_secret_key
+ADMIN_API_SECRET=your_secret_key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Run Locally
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+npm run dev
+```
 
-## Deploy on Vercel
+Visit: http://localhost:3000
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 💡 Future Plans
+
+- Monthly and historical report tracking.
+- PDF or Excel export options.
+- Role-based access control.
+- Dashboard summary for multi-outlet tracking.
+
+---
+
+## ❤️ Author
+
+**Developed with love by Kaelmog (Me ofc)**
+Made for my beloved love of my life to simplify her daily store reporting workflow.
+
+---
+
+## 📄 License
+
+MIT License - feel free to use and adapt for your own operations.
