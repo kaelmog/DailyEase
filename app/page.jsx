@@ -6,7 +6,21 @@ import { useRouter } from "next/navigation";
 export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [showGreeting, setShowGreeting] = useState(false);
+  const [user, setUser] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const res = await fetch("/api/auth/me", { cache: "no-store" });
+        const data = await res.json();
+        setUser(data.user || null);
+      } catch {
+        setUser(null);
+      }
+    }
+    loadUser();
+  }, []);
 
   useEffect(() => {
     const loadTimer = setTimeout(() => {
@@ -14,13 +28,18 @@ export default function HomePage() {
       setShowGreeting(true);
     }, 300);
 
-    const redirectTimer = setTimeout(() => router.push("/reports/new"), 2000);
+    const redirectTimer = setTimeout(() => router.push("/reports"), 2000);
 
     return () => {
       clearTimeout(loadTimer);
       clearTimeout(redirectTimer);
     };
   }, [router]);
+
+  const isAyuni =
+    user?.username === "ralisme" ||
+    user?.name?.toLowerCase() === "ayuni" ||
+    user?.email === "rizkyayuni22@gmail.com";
 
   return (
     <div className="flex items-center justify-center h-screen bg-pink-50 px-4">
@@ -30,13 +49,18 @@ export default function HomePage() {
 
       {showGreeting && !loading && (
         <h1 className="text-pink-600 font-bold text-center greeting animate-slide-fade">
-          Hi Ayuni!{" "}
-          <span className="inline-block animate-heart-bounce">💖</span>
+          {isAyuni ? (
+            <>
+              Hi Sayang{"   "}
+              <span className="inline-block animate-heart-bounce">💖💖💖</span>
+            </>
+          ) : (
+            <>Welcome 👋</>
+          )}
         </h1>
       )}
 
       <style>{`
-        /* Shimmer loading */
         .shimmer {
           position: relative;
           overflow: hidden;
@@ -57,15 +81,10 @@ export default function HomePage() {
           animation: shimmer 1.2s infinite;
         }
         @keyframes shimmer {
-          0% {
-            left: -150%;
-          }
-          100% {
-            left: 100%;
-          }
+          0% { left: -150%; }
+          100% { left: 100%; }
         }
 
-        /* Greeting animation */
         .greeting {
           opacity: 0;
           transform: translateY(20px) scale(0.9);
@@ -80,44 +99,28 @@ export default function HomePage() {
           }
         }
 
-        /* Heart bounce */
         .animate-heart-bounce {
           display: inline-block;
           animation: heartBounce 0.8s ease-in-out infinite alternate;
         }
         @keyframes heartBounce {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.3);
-          }
-          100% {
-            transform: scale(1);
-          }
+          0% { transform: scale(1); }
+          50% { transform: scale(1.3); }
+          100% { transform: scale(1); }
         }
 
-        /* Responsive font sizes */
         @media (max-width: 375px) {
-          .greeting {
-            font-size: 2.5rem;
-          }
-        } /* iPhone X */
+          .greeting { font-size: 2.5rem; }
+        }
         @media (max-width: 414px) {
-          .greeting {
-            font-size: 3rem;
-          }
-        } /* iPhone 11 */
+          .greeting { font-size: 3rem; }
+        }
         @media (max-width: 411px) {
-          .greeting {
-            font-size: 2.8rem;
-          }
-        } /* Redmi Note 8 */
+          .greeting { font-size: 2.8rem; }
+        }
         @media (min-width: 768px) {
-          .greeting {
-            font-size: 5rem;
-          }
-        } /* Tablets/desktop */
+          .greeting { font-size: 5rem; }
+        }
       `}</style>
     </div>
   );

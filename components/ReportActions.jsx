@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Loader from "./ui/loader";
+import Loader from "./ui/Loader";
 
 export default function ReportActions({ reportId, onDeleted }) {
   const [loading] = useState(false);

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { fetcher } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { formatIdNumber } from "@/utils/format";
+import { Loader } from "lucide-react";
 
 export default function ReportHistoryPage() {
   const [reports, setReports] = useState([]);
@@ -30,7 +31,10 @@ export default function ReportHistoryPage() {
     }
     load();
   }, []);
-  if (loading) return <div className="p-4">Loading reports...</div>;
+  if (loading) return <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
+          <Loader />
+          <span className="text-text-primary">Memuat Data Laporan ....</span>
+        </div>;
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (

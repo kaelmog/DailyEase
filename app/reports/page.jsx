@@ -1,34 +1,33 @@
-"use client";
-import { useEffect, useState, useMemo } from "react";
-import { Briefcase, CreditCard, Loader2 } from "lucide-react";
-import Button from "@/components/ui/button";
-import Link from "next/link";
-import { formatIdNumber } from "@/utils/format";
-import { getIndonesianFullDate } from "@/utils/dates";
+'use client';
+import { useEffect, useState, useMemo } from 'react';
+import { Calendar, Briefcase, CreditCard } from 'lucide-react';
+import Link from 'next/link';
+import { fetcher } from '@/utils/fetcher';
+import { getIndonesianFullDate } from '@/utils/dates';
+import { formatIdNumber } from '@/utils/format';
+import { Button } from '@headlessui/react';
+import Loader from '@/components/ui/Loader';
 
 export default function ReportsPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
-  const token = null;
+  const [err, setErr] = useState('');
 
   useEffect(() => {
+    let mounted = true;
     async function load() {
       try {
-        const res = await fetch("/api/reports/list", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to load reports");
-        setReports(data);
+        const data = await fetcher('/api/reports/list');
+        if (mounted) setReports(data);
       } catch (e) {
-        setErr(e.message);
+        if (mounted) setErr(e.message);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
     load();
-  }, [token]);
+    return () => (mounted = false);
+  }, []);
 
   const weeklySummary = useMemo(() => {
     return reports.map((r) => ({
@@ -39,44 +38,37 @@ export default function ReportsPage() {
 
   return (
     <div className="min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
-      <header className="flex mb-4 justify-between items-center">
-        <h1 className="text-3xl font-bold text-text-primary text-center">
-          Riwayat Laporan
-        </h1>
+      <header className="flex mb-4 px-2">
+        <h1 className="flex-1 text-3xl font-bold text-text-primary md:text-sm">Riwayat Laporan</h1>
         <Link href="/reports/new">
-        <Button
-                  className="flex items-center justify-center gap-2 bg-accent-primary hover:bg-btn-primary-hover text-white font-medium rounded-lg"
-                >
-          Buat Baru
-                </Button>
-          </Link>
+          <Button className="flex-none bg-accent-primary px-3 py-2 hover:bg-btn-primary-hover active:bg-btn-primary-hover rounded-lg">
+            Buat Baru
+          </Button>
+        </Link>
       </header>
 
       {loading ? (
-        
-                
-                      <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
-                        <Loader2 className="w-8 h-8 animate-spin text-accent-primary mb-3" />
-                        <span className="text-text-primary font-medium">
-                          Memuat data laporan ....
-                        </span>
-                      </div>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
+          <Loader />
+          <span className="text-text-primary">Memuat Data Laporan ....</span>
+        </div>
       ) : err ? (
         <p className="text-red-500">{err}</p>
       ) : reports.length === 0 ? (
-        <p>No reports yet.</p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
+          <p>Belum ada laporan.</p>
+        </div>
       ) : (
         weeklySummary.map((r) => (
           <div
             key={r.id}
-            className="m-2 py-4 px-4 rounded-lg bg-secondary text-text-primary"
+            className="m-2 mb-3 py-2 px-4 rounded-lg bg-secondary text-text-primary active:bg-btn-secondary-hover hover:bg-btn-secondary-hover"
           >
             <Link href={`/reports/view/${r.id}`} className="block flex-1">
-              <h1 className="text-3xl font-extrabold mb-1 text-text-secondary text-center">
-                Laporan Closing
-              </h1>
+              <h1 className="text-3xl font-extrabold mb-1 text-text-secondary">Laporan Closing</h1>
 
-              <div className="flex items-center text-text-secondary mb-6 space-x-2 w-full justify-center">
+              <div className="flex items-center text-text-secondary text-base mb-6 space-x-2">
+                <Calendar className="w-4 h-4 text-accent-primary" />
                 <span>{r.formatted_date}</span>
               </div>
 
@@ -88,8 +80,8 @@ export default function ReportsPage() {
                       Penjualan
                     </span>
                   </div>
-                  <div className="text-md font-extrabold text-text-primary">
-                    Rp{formatIdNumber(r.total_sales ?? 0)}
+                  <div className="text-3xl font-extrabold text-text-primary">
+                    Rp{formatIdNumber(r.total_sales)}
                   </div>
                 </div>
 
@@ -100,7 +92,7 @@ export default function ReportsPage() {
                       Transaksi
                     </span>
                   </div>
-                  <div className="text-md font-extrabold text-text-primary">
+                  <div className="text-3xl font-extrabold text-text-primary">
                     {r.transactions ?? 0}
                   </div>
                 </div>
@@ -108,13 +100,9 @@ export default function ReportsPage() {
 
               {r.notes && (
                 <div className="pt-6 border-t border-row-hover">
-                  <p className="text-text-secondary text-sm font-semibold mb-2">
-                    Catatan Internal:
-                  </p>
-                  <div className="px-4 py-2 bg-input rounded-lg border border-row-hover max-h-20 overflow-y-auto">
-                    <p className="text-text-secondary text-sm italic">
-                      {r.notes}
-                    </p>
+                  <p className="text-text-secondary text-sm font-semibold mb-2">Catatan:</p>
+                  <div className="px-4 py-2 bg-input rounded-lg border border-row-hover max-h-14 overflow-y-auto">
+                    <p className="text-text-secondary text-sm italic">{r.notes}</p>
                   </div>
                 </div>
               )}

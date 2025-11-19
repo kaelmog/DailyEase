@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 
@@ -28,8 +28,7 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  const login = async () => {
-    // After login POST, the server sets a cookie. Call loadUser to refresh state.
+  const loginRefresh = async () => {
     await loadUser();
   };
 
@@ -38,12 +37,13 @@ export const AuthProvider = ({ children }) => {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } catch (err) {
       console.error("[AuthProvider] logout error:", err);
+    } finally {
+      setUser(null);
     }
-    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginRefresh, logout }}>
       {children}
     </AuthContext.Provider>
   );

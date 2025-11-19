@@ -1,35 +1,39 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { hashPassword, signJwt } from "@/lib/auth";
+import { supabase } from "@/lib/supabaseClient";
+import { hashPassword } from "@/lib/auth";
+
+const ADMIN_SECRET = process.env.ADMIN_API_SECRET;
 
 export async function POST(req) {
   try {
-    const { username, password, email } = await req.json();
-    if (!username || !password)
+    const body = await req.json();
+
+    const headerSecret = req.headers.get("x-admin-secret");
+    const provided = headerSecret || body?.admin_secret;
+    if (!ADMIN_SECRET || provided !== ADMIN_SECRET) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { username, password, role = "user" } = body || {};
+    if (!username || !password) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
 
-    const { data: existing } = await supabaseAdmin()
+    const password_hash = await hashPassword(password);
+
+    const { data, error } = await supabase
       .from("users")
-      .select("*")
-      .eq("username", username)
-      .maybeSingle();
-    if (existing)
-      return NextResponse.json({ error: "Username taken" }, { status: 400 });
-
-    const hashed = await hashPassword(password);
-
-    const { data: newUser, error } = await supabaseAdmin()
-      .from("users")
-      .insert([{ username, email, password_hash: hashed, role: "Admin" }])
+      .insert([{ username, password_hash, role }])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
 
-    const token = signJwt(newUser);
-    return NextResponse.json({ token, user: newUser }, { status: 201 });
+    return NextResponse.json({ user: data }, { status: 201 });
   } catch (err) {
-    console.error("Register error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("[/api/auth/register] error:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

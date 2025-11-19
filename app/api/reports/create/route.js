@@ -4,8 +4,7 @@ import { verifyToken } from "@/lib/jwt";
 
 export async function POST(req) {
   try {
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
+    const token = req.cookies.get("token")?.value;
     if (!token)
       return NextResponse.json({ error: "Missing token" }, { status: 401 });
 
@@ -22,7 +21,7 @@ export async function POST(req) {
       );
 
     const reportData = {
-      report_date: new Date().toISOString().split("T")[0],
+      report_date: body.date,
       user_id: decoded.id,
       payments: {
         cash: body.payments?.cash?.amount || 0,

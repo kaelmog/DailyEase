@@ -1,19 +1,24 @@
-export async function apiFetch(path, options = {}) {
-  const url = path.startsWith('/') ? path : `/${path}`;
-  const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-  }
-  const res = await fetch(url, { ...options, headers });
-  const text = await res.text();
-  let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+export async function fetcher(url, opts = {}) {
+  const merged = {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...(opts.headers || {}),
+    },
+    ...opts,
+  };
+
+  const res = await fetch(url, merged);
   if (!res.ok) {
-    const err = new Error(data?.message || res.statusText || 'API error');
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+    }
+    const err = new Error(data?.error || "Request failed");
     err.status = res.status;
-    err.body = data;
     throw err;
   }
-  return data;
+  return res.json();
 }

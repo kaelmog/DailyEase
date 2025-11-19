@@ -34,7 +34,7 @@ export default function useReports(params = {}) {
     fetchReports();
 
     return () => { mounted.current = false; };
-  }, [paramString]); // simple param change detection
+  }, [paramString]);
 
   return { data, loading, error };
 }

@@ -16,18 +16,18 @@ export default function Modal({ open = false, title, children, onClose }) {
       <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
-            className={`relative w-full px-4 py-6 max-w-md mx-auto transform overflow-hidden rounded-2xl bg-primary border border-accent-primary shadow-xl transition-all data-closed:opacity-0 text-text-primary`}
+            className={`relative w-full px-4 py-2 max-w-md mx-auto transform overflow-hidden rounded-2xl bg-primary border border-accent-primary shadow-xl transition-all data-closed:opacity-0 text-text-primary`}
           >
-            <div className="flex items-center justify-between px-5 py-1 border-b border-accent-primary">
+            <div className="flex items-center pl-5 py-1 border-b border-accent-primary">
               <DialogTitle
                 as="h3"
-                className="text-lg font-semibold"
+                className="text-lg font-semibold flex-1 text-left w-90%"
               >
                 {title}
               </DialogTitle>
               <button
                 onClick={onClose}
-                className="p-2 rounded-md hover:bg-secondary-primary transition"
+                className="p-2 rounded-md hover:bg-secondary-primary transition hover:bg-btn-primary-hover active:bg-btn-secondary-hover flex-none text-right w-10%"
               >
                 <X size={18} />
               </button>

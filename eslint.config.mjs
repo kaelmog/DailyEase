@@ -3,7 +3,6 @@ import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
-// Required for JSX parsing
 const babelParser = (await import("@babel/eslint-parser")).default;
 
 export default [
@@ -32,7 +31,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.vitest, // test, expect, describe, beforeEach, etc.
+        ...globals.vitest,
       },
     },
 

@@ -1,31 +1,39 @@
 import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { supabase } from "@/lib/supabaseClient";
+import { hashPassword } from "@/lib/auth";
+
+const ADMIN_SECRET = process.env.ADMIN_API_SECRET;
 
 export async function POST(req) {
-  const { username, password, name, email } = await req.json();
+  try {
+    const body = await req.json();
 
-  const apiSecret = req.headers.get("x-admin-secret");
-  if (apiSecret !== process.env.ADMIN_API_SECRET)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const headerSecret = req.headers.get("x-admin-secret");
+    const provided = headerSecret || body?.admin_secret;
+    if (!ADMIN_SECRET || provided !== ADMIN_SECRET) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
-  const { data: user, error: userErr } = await supabaseAdmin()
-    .from("users")
-    .insert([{ username, name, email, role: "user", is_active: true }])
-    .select()
-    .single();
+    const { username, password, role = "user" } = body || {};
+    if (!username || !password) {
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    }
 
-  if (userErr)
-    return NextResponse.json({ error: userErr.message }, { status: 400 });
+    const password_hash = await hashPassword(password);
 
-  const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(password, salt);
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ username, password_hash, role }])
+      .select()
+      .single();
 
-  await supabaseAdmin().from("auth_credentials").insert({
-    user_id: user.id,
-    password_hash: hash,
-    salt,
-  });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
 
-  return NextResponse.json({ success: true, user });
+    return NextResponse.json({ user: data }, { status: 201 });
+  } catch (err) {
+    console.error("[/api/auth/register] error:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }

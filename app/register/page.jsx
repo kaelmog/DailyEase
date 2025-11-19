@@ -1,105 +1,98 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/authContext";
+'use client';
+import React, { useState } from 'react';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import ErrorBanner from '@/components/ui/ErrorBanner';
+import { Loader2 } from 'lucide-react';
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-    name: "",
-    email: "",
-  });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ username: '', password: '', admin_secret: '' });
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!user) return;
-    if (user.role !== "Admin") {
-      alert("You are not authorized to access this page.");
-      router.push("/login");
-    }
-  }, [user, router]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
+    setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
+        credentials: 'include',
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Registration failed");
-
-      alert("✅ User registered successfully!");
-      router.push("/login");
+      if (!res.ok) {
+        setError(data.error || 'Register failed');
+      } else {
+        setSuccess('User created successfully');
+        setForm({ username: '', password: '', admin_secret: '' });
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Network error');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white px-4">
-      <div className="w-full max-w-md bg-gray-800 p-6 rounded-xl shadow-lg">
-        <h1 className="text-2xl font-semibold mb-4 text-center">
-          Register New User
+    <div className="flex flex-col items-center justify-center min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-secondary p-6 rounded-2xl shadow-md w-80 space-y-4 text-text-primary"
+      >
+        <h1 className="text-xl font-bold text-center text-text-secondary">
+          Create Account (Admin)
         </h1>
 
-        {user?.role === "Admin" ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              placeholder="Username"
-              value={form.username}
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
-              className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
-              required
-            />
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full px-3 py-2 rounded bg-gray-700 focus:outline-none"
-            />
-
-            {error && <p className="text-red-400 text-sm">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 bg-blue-600 hover:bg-blue-500 rounded font-semibold transition"
-            >
-              {loading ? "Registering..." : "Register"}
-            </button>
-          </form>
-        ) : (
-          <p className="text-center text-gray-400">Verifying permissions...</p>
+        {error && <ErrorBanner message={error} />}
+        {success && (
+          <div className="bg-green-500 text-white p-2 rounded text-sm text-center">{success}</div>
         )}
-      </div>
+
+        <div>
+          <label className="block text-sm font-medium text-text-secondary mb-1">Username</label>
+          <Input
+            value={form.username}
+            onChange={(e) => setForm({ ...form, username: e.target.value })}
+            placeholder="username"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-text-secondary mb-1">Password</label>
+          <Input
+            type="password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder="password"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-text-secondary mb-1">Admin Secret</label>
+          <Input
+            value={form.admin_secret}
+            onChange={(e) => setForm({ ...form, admin_secret: e.target.value })}
+            placeholder="admin secret"
+          />
+          <p className="text-xs text-text-secondary mt-1">
+            Only the admin can create users. Provide your ADMIN_SECRET.
+          </p>
+        </div>
+
+        <Button
+          type="submit"
+          className={`w-full py-2 bg-accent-primary text-white rounded font-semibold ${loading ? 'opacity-70' : ''}`}
+          disabled={loading}
+        >
+          {loading ? <Loader2 /> : 'Create Account'}
+        </Button>
+      </form>
     </div>
   );
 }

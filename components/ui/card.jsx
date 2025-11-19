@@ -1,7 +1,6 @@
+"use client";
+import React from "react";
+
 export default function Card({ children, className = "" }) {
-  return (
-    <div className={`rounded-2xl shadow-sm p-4 bg-white ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`bg-secondary p-4 rounded-xl shadow-md ${className}`}>{children}</div>;
 }
