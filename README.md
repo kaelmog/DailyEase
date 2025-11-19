@@ -1,4 +1,4 @@
-# Daily-Ease — v5 Stable 2.0
+# Daily-Ease — v6 Stable 1.0
 
 Daily-Ease is a lightweight, mobile-friendly reporting system built with **Next.js App Router**, designed for creating, managing, and sharing **daily sales reports** and **product leftovers**.  
 It includes a full authentication system, protected routes, Supabase integration, and smooth UI/UX tailored for real outlet use.
