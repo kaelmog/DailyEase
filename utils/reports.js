@@ -61,7 +61,7 @@ export const generateSalesReportMessage = (date, salesData, productSummary) => {
 
 TOTAL: Rp${formatIdNumber(totalSales)} / ${totalTransactions} transaksi 
 
-**Sales report produk The Wheat ${getIndonesianFullDate(date)}**
+*Sales report produk The Wheat ${getIndonesianFullDate(date)}*
 
 - Pastry: Rp${formatIdNumber(sales.pastry)}
 - Bread: Rp${formatIdNumber(sales.bread)}
@@ -88,7 +88,7 @@ export const generateLeftoversReportMessage = (
   if (!Array.isArray(product_categories) || product_categories.length === 0)
     return 'ERROR: No category data available.';
 
-  let msg = `**SISA PRODUK THE WHEAT RS PURI CINERE, ${getIndonesianFullDate(date)}**\n\n`;
+  let msg = `*SISA PRODUK THE WHEAT RS PURI CINERE, ${getIndonesianFullDate(date)}*\n\n`;
 
   catName.map((name) => {
     msg += `***${name}***\n`;
