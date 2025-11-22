@@ -148,7 +148,7 @@ export default function ViewReportPage() {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-primary">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 py-6 max-w-md mx-auto bg-primary">
         <Loader />
         <span className="text-text-primary">Memuat Data Laporan ....</span>
       </div>
