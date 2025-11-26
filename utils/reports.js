@@ -25,7 +25,7 @@ export const generateSalesReportMessage = (date, salesData, productSummary) => {
     salesData.transfer_outstanding.transactions;
 
   const sales = productSummary;
-  return `**Sales Report closing Outlet THE WHEAT RS PURI CINERE ${getIndonesianFullDate(date)}**
+  return `*Sales Report closing Outlet THE WHEAT RS PURI CINERE ${getIndonesianFullDate(date)}*
 
 1. Cash: Rp${formatIdNumber(salesData.cash.amount)} ${
     salesData.cash.transactions > 0 ? `/ ${salesData.cash.transactions} transaksi` : ''
@@ -39,21 +39,24 @@ export const generateSalesReportMessage = (date, salesData, productSummary) => {
 4. Gofood: Rp${formatIdNumber(salesData.gofood.amount)} ${
     salesData.gofood.transactions > 0 ? `/ ${salesData.gofood.transactions} transaksi` : ''
   }
-5. Debit: Rp${formatIdNumber(salesData.debit.amount)} ${
+5. Shopeefood: Rp${formatIdNumber(salesData.shopeefood ? salesData.shopeefood.amount : 0)} ${
+    salesData.shopeefood && salesData.shopeefood.transactions > 0 ? `/ ${salesData.gofood.transactions} transaksi` : ''
+  } 
+6. Debit: Rp${formatIdNumber(salesData.debit.amount)} ${
     salesData.debit.transactions > 0 ? `/ ${salesData.debit.transactions} transaksi` : ''
   }
-6. Credit card: Rp${formatIdNumber(salesData.credit_card.amount)} ${
+7. Credit card: Rp${formatIdNumber(salesData.credit_card.amount)} ${
     salesData.credit_card.transactions > 0
       ? `/ ${salesData.credit_card.transactions} transaksi`
       : ''
   }
-7. ⁠Transfer: Rp${formatIdNumber(salesData.transfer.amount)} ${
+8. ⁠Transfer: Rp${formatIdNumber(salesData.transfer.amount)} ${
     salesData.transfer.transactions > 0 ? `/ ${salesData.transfer.transactions} transaksi` : ''
   }   
-8. ⁠Voucher: Rp${formatIdNumber(salesData.voucher.amount)} ${
+9. ⁠Voucher: Rp${formatIdNumber(salesData.voucher.amount)} ${
     salesData.voucher.transactions > 0 ? `/ ${salesData.voucher.transactions} transaksi` : ''
   }
-9. Transfer oustanding: Rp${formatIdNumber(salesData.transfer_outstanding.amount)} ${
+10. Transfer oustanding: Rp${formatIdNumber(salesData.transfer_outstanding.amount)} ${
     salesData.transfer_outstanding.transactions > 0
       ? `/ ${salesData.transfer_outstanding.transactions} transaksi`
       : ''
